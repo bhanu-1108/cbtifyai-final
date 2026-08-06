@@ -15,6 +15,11 @@ const TestPage = () => {
   const [loadingTest, setLoadingTest] = useState(!test);
 
   useEffect(() => {
+    if (test && test.id === id) {
+      setLoadingTest(false);
+      return;
+    }
+
     const existing = tests.find(t => t.id === id);
     if (existing) {
       setTest(existing);
@@ -23,6 +28,7 @@ const TestPage = () => {
     }
 
     let isMounted = true;
+    setLoadingTest(true);
     fetch(`${apiBaseUrl}/api/tests/${id}`)
       .then(res => res.ok ? res.json() : null)
       .then(data => {
@@ -43,18 +49,7 @@ const TestPage = () => {
       });
 
     return () => { isMounted = false; };
-  }, [id, tests, navigate]);
-
-  if (loadingTest) {
-    return (
-      <div className="min-h-screen bg-darkBg text-white flex items-center justify-center">
-        <div className="text-center space-y-3">
-          <div className="w-10 h-10 rounded-full border-2 border-accentBlue border-t-transparent animate-spin mx-auto" />
-          <p className="text-xs text-mutedGray">Loading assessment...</p>
-        </div>
-      </div>
-    );
-  }
+  }, [id, navigate]);
 
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState(() => (test && test.questions ? Array(test.questions.length).fill(-1) : []));
@@ -69,7 +64,7 @@ const TestPage = () => {
       setMarkedForReview(Array(test.questions.length).fill(false));
       setTimeLeft(test.timeLimit * 60);
     }
-  }, [test]);
+  }, [test?.id]);
 
   useEffect(() => {
     if (!timeLeft || timeLeft <= 0) return;
@@ -85,7 +80,7 @@ const TestPage = () => {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, [test]);
+  }, [test?.id]);
 
   const formatTime = (secs) => {
     const mins = Math.floor(secs / 60);
@@ -129,7 +124,7 @@ const TestPage = () => {
     navigate('/analytics');
   };
 
-  if (!test || !test.questions || test.questions.length === 0) {
+  if (loadingTest || !test || !test.questions || test.questions.length === 0) {
     return (
       <div className="min-h-screen bg-darkBg text-white flex items-center justify-center">
         <div className="text-center space-y-3">
