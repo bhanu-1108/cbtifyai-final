@@ -289,6 +289,7 @@ export const AppProvider = ({ children }) => {
       testId,
       testTitle: test.title,
       userId: currentUser ? currentUser.id : 'student-1',
+      userEmail: currentUser ? currentUser.email : 'student@cbtify.ai',
       username: currentUser ? currentUser.username : 'John Doe',
       score,
       totalQuestions,

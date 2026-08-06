@@ -29,8 +29,13 @@ const OrgPortal = () => {
   const [copiedTestId, setCopiedTestId] = useState(null);
 
   useEffect(() => {
-    if (!currentUser?.id) return;
-    fetch(`${apiBaseUrl}/api/tests?createdBy=${encodeURIComponent(currentUser.id)}`)
+    if (!currentUser) return;
+    const query = new URLSearchParams({
+      createdBy: currentUser.id || '',
+      username: currentUser.username || '',
+      email: currentUser.email || ''
+    }).toString();
+    fetch(`${apiBaseUrl}/api/tests?${query}`)
       .then(r => r.ok ? r.json() : [])
       .then(data => setMyTests(Array.isArray(data) ? data : []))
       .catch(() => {});

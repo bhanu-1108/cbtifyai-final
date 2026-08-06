@@ -154,7 +154,10 @@ app.get("/api/tests", async (req, res) => {
   try {
     const filter = {};
     if (req.query.createdBy) {
-      filter.createdBy = req.query.createdBy;
+      const createdByValues = [req.query.createdBy];
+      if (req.query.username) createdByValues.push(req.query.username);
+      if (req.query.email) createdByValues.push(req.query.email);
+      filter.createdBy = { $in: createdByValues };
     } else if (req.query.forUser) {
       const userIdentifiers = [req.query.forUser];
       if (req.query.username) userIdentifiers.push(req.query.username);
@@ -239,6 +242,7 @@ app.post("/api/submissions", async (req, res) => {
       testId,
       testTitle,
       userId,
+      userEmail,
       username,
       score,
       totalQuestions,
@@ -249,13 +253,15 @@ app.post("/api/submissions", async (req, res) => {
       questions,
     } = req.body;
 
+    const studentEmail = userEmail || req.body.email || userId;
     const subId = `sub-${Date.now()}`;
     const subDoc = {
       _id: subId,
       testId,
       testTitle,
       userId,
-      username,
+      userEmail: studentEmail,
+      username: username || "Student",
       score,
       totalQuestions,
       accuracy,
@@ -268,12 +274,14 @@ app.post("/api/submissions", async (req, res) => {
 
     await db.collection("submissions").insertOne(subDoc);
 
-    // Update roster student metrics if student exists
-    const student = await db.collection("students").findOne({ $or: [{ name: username }, { email: userId }] });
+    // Update roster student metrics if student exists or auto-add student to roster
+    const student = await db.collection("students").findOne({
+      $or: [{ email: studentEmail }, { email: userId }, { name: username }]
+    });
 
     if (student) {
-      const newTestsTaken = student.testsTaken + 1;
-      const newAvgAccuracy = Math.round((student.avgAccuracy * student.testsTaken + accuracy) / newTestsTaken);
+      const newTestsTaken = (student.testsTaken || 0) + 1;
+      const newAvgAccuracy = Math.round(((student.avgAccuracy || 0) * (student.testsTaken || 0) + accuracy) / newTestsTaken);
       await db.collection("students").updateOne(
         { _id: student._id },
         {
@@ -284,6 +292,15 @@ app.post("/api/submissions", async (req, res) => {
           },
         }
       );
+    } else if (username || studentEmail) {
+      await db.collection("students").insertOne({
+        _id: `stud-${Date.now()}`,
+        name: username || "Student Candidate",
+        email: studentEmail,
+        testsTaken: 1,
+        avgAccuracy: accuracy,
+        lastActive: new Date().toISOString().split("T")[0],
+      });
     }
 
     res.status(201).json(serialize(subDoc));

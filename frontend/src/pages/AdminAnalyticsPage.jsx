@@ -286,7 +286,7 @@ const AdminAnalyticsPage = () => {
                 {submissions?.length > 0 ? submissions.map((sub) => (
                   <tr key={sub.id} className="hover:bg-white/[0.01] transition-colors">
                     <td className="py-4 px-5 font-semibold text-white">{sub.username}</td>
-                    <td className="py-4 px-5 text-mutedGray font-mono text-[10px]">{sub.userId}</td>
+                    <td className="py-4 px-5 text-mutedGray font-mono text-[10px]">{sub.userEmail || sub.userId}</td>
                     <td className="py-4 px-5 text-center font-bold text-slate-300">
                       {sub.score}/{sub.totalQuestions}
                     </td>
