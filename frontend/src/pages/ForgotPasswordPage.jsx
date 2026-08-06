@@ -45,7 +45,7 @@ const ForgotPasswordPage = () => {
             <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-accentBlue to-purpleGlow flex items-center justify-center shadow-glowBlue">
               <Cpu className="w-4.5 h-4.5 text-white" />
             </div>
-            <span className="font-bold text-xl text-white">CBTify AI</span>
+            <span className="font-bold text-xl text-white">CBTify.ai</span>
           </Link>
           <h2 className="text-2xl font-bold text-white">Reset password</h2>
           <p className="text-xs text-mutedGray mt-1.5">Enter your email to receive recovery instructions.</p>

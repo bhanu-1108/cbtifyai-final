@@ -63,7 +63,7 @@ const Navbar = () => {
               <Cpu className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-2xl tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">
-              CBTify <span className="bg-gradient-to-r from-accentBlue to-cyanAccent bg-clip-text text-transparent">AI</span>
+              CBTify<span className="bg-gradient-to-r from-accentBlue to-cyanAccent bg-clip-text text-transparent">.ai</span>
             </span>
           </Link>
 

@@ -36,7 +36,7 @@ const LandingPage = () => {
 
   const steps = [
     { title: 'Upload PDF/Image', desc: 'Drag-and-drop notes, question files, or page screenshots.' },
-    { title: 'AI Question Extraction', desc: 'CBTify AI scans text, formulas, drawings and isolates Q&As.' },
+    { title: 'AI Question Extraction', desc: 'CBTify.ai scans text, formulas, drawings and isolates Q&As.' },
     { title: 'Generate CBT Exam', desc: 'Converts questions into standard MCQ online assessments.' },
     { title: 'Attempt CBT Test', desc: 'Students attempt the test inside a secure timer-driven browser.' },
     { title: 'Get Analytics & Insights', desc: 'Get subject breakdown, mistakes list, and rank mapping.' }
@@ -547,7 +547,7 @@ const LandingPage = () => {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">About CBTify AI</h2>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">About CBTify.ai</h2>
             <p className="text-base text-mutedGray max-w-2xl mx-auto">
               Bridging the gap between static content and active educational evaluation.
             </p>
@@ -566,7 +566,7 @@ const LandingPage = () => {
                 Our Educational Vision
               </h3>
               <p className="text-sm text-slate-300 leading-relaxed">
-                At CBTify AI, we believe that learning happens by doing. Traditional assessment cycles are slow, tedious, and often delayed. Our mission is to democratize instant feedback by converting static lecture slides, textbooks, and notes into interactive quiz portals immediately.
+                At CBTify.ai, we believe that learning happens by doing. Traditional assessment cycles are slow, tedious, and often delayed. Our mission is to democratize instant feedback by converting static lecture slides, textbooks, and notes into interactive quiz portals immediately.
               </p>
               <p className="text-sm text-slate-300 leading-relaxed">
                 Developed in partnership with academic hubs like the IPU University labs, our technology uses layout-aware neural extraction systems to separate instructional sheets from grading items, saving institutions hundreds of work hours.
@@ -758,7 +758,7 @@ const LandingPage = () => {
 
           <h2 className="text-3xl md:text-4xl font-extrabold text-white">Ready to Transform Any Document into an Exam?</h2>
           <p className="text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
-            Upload notes, exams, sheets, or homework slides. Join thousands of candidates and institutions using CBTify AI.
+            Upload notes, exams, sheets, or homework slides. Join thousands of candidates and institutions using CBTify.ai.
           </p>
           <div>
             <Link
@@ -777,9 +777,9 @@ const LandingPage = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
           <div className="flex items-center justify-center space-x-2">
             <div className="w-6 h-6 rounded bg-accentBlue flex items-center justify-center"><Cpu className="w-3.5 h-3.5 text-white" /></div>
-            <span className="font-bold text-white text-sm">CBTify AI</span>
+            <span className="font-bold text-white text-sm">CBTify.ai</span>
           </div>
-          <p>© 2026 CBTify AI. Powered by Hugging Face &amp; PaddleOCR.</p>
+          <p>© 2026 CBTify.ai. Powered by Hugging Face &amp; PaddleOCR.</p>
         </div>
       </footer>
     </div>
