@@ -263,9 +263,9 @@ export const AppProvider = ({ children }) => {
     return generatedTest.id;
   };
 
-  const submitTest = (testId, answers, timeSpent) => {
-    const test = tests.find(t => t.id === testId);
-    if (!test) return null;
+  const submitTest = (testId, answers, timeSpent, fullTest = null) => {
+    const test = fullTest || tests.find(t => t.id === testId);
+    if (!test || !test.questions) return null;
 
     let score = 0;
     const totalQuestions = test.questions.length;

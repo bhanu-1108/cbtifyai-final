@@ -120,7 +120,7 @@ const TestPage = () => {
   const triggerSubmission = () => {
     clearInterval(timerRef.current);
     const timeSpent = (test.timeLimit * 60) - timeLeft;
-    submitTest(test.id, answers, timeSpent);
+    submitTest(test.id, answers, timeSpent, test);
     navigate('/analytics');
   };
 
