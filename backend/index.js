@@ -516,10 +516,21 @@ app.post("/api/convert-to-cbt", upload.single("file"), async (req, res) => {
 
 // ── Production: Serve React static build ─────────────────────────────────────
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(distDir));
-  app.get(/^(?!\/api).*/, (_req, res) => {
-    res.sendFile(path.join(distDir, "index.html"));
-  });
+  const indexPath = path.join(distDir, "index.html");
+  if (fs.existsSync(indexPath)) {
+    app.use(express.static(distDir));
+    app.get(/^(?!\/api).*/, (_req, res) => {
+      res.sendFile(indexPath);
+    });
+  } else {
+    app.get("/", (_req, res) => {
+      res.json({
+        status: "ok",
+        message: "🚀 CBTify.ai Express API Backend is running live!",
+        health: "/api/health"
+      });
+    });
+  }
 }
 
 const port = process.env.PORT || 5000;
