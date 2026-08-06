@@ -56,16 +56,23 @@ const TestPage = () => {
     );
   }
 
-  if (!test) return null;
-
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState(() => Array(test.questions.length).fill(-1));
-  const [markedForReview, setMarkedForReview] = useState(() => Array(test.questions.length).fill(false));
-  const [timeLeft, setTimeLeft] = useState(test.timeLimit * 60);
+  const [answers, setAnswers] = useState(() => (test && test.questions ? Array(test.questions.length).fill(-1) : []));
+  const [markedForReview, setMarkedForReview] = useState(() => (test && test.questions ? Array(test.questions.length).fill(false) : []));
+  const [timeLeft, setTimeLeft] = useState(() => (test ? test.timeLimit * 60 : 600));
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const timerRef = useRef(null);
 
   useEffect(() => {
+    if (test && test.questions) {
+      setAnswers(Array(test.questions.length).fill(-1));
+      setMarkedForReview(Array(test.questions.length).fill(false));
+      setTimeLeft(test.timeLimit * 60);
+    }
+  }, [test]);
+
+  useEffect(() => {
+    if (!timeLeft || timeLeft <= 0) return;
     timerRef.current = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
@@ -78,7 +85,7 @@ const TestPage = () => {
     }, 1000);
 
     return () => clearInterval(timerRef.current);
-  }, []);
+  }, [test]);
 
   const formatTime = (secs) => {
     const mins = Math.floor(secs / 60);
@@ -122,8 +129,19 @@ const TestPage = () => {
     navigate('/analytics');
   };
 
+  if (!test || !test.questions || test.questions.length === 0) {
+    return (
+      <div className="min-h-screen bg-darkBg text-white flex items-center justify-center">
+        <div className="text-center space-y-3">
+          <div className="w-10 h-10 rounded-full border-2 border-accentBlue border-t-transparent animate-spin mx-auto" />
+          <p className="text-xs text-mutedGray">Loading assessment questions...</p>
+        </div>
+      </div>
+    );
+  }
+
   const answeredCount = answers.filter(a => a !== -1).length;
-  const currentQuestion = test.questions[currentIdx];
+  const currentQuestion = test.questions[currentIdx] || test.questions[0];
 
   return (
     <div className="min-h-screen bg-darkBg text-white flex flex-col">
