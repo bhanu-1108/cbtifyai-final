@@ -8,7 +8,9 @@ const LoginPage = () => {
   const { login } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const nextPath = new URLSearchParams(location.search).get('next') || '/dashboard';
+  const searchParams = new URLSearchParams(location.search);
+  const nextPath = searchParams.get('next') || searchParams.get('redirect') || '/dashboard';
+  const registerLink = `/register${location.search}`;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -145,7 +147,7 @@ const LoginPage = () => {
 
         <p className="text-center text-xs text-mutedGray mt-6">
           Don't have an account?{' '}
-          <Link to="/register" className="text-accentBlue font-medium hover:text-cyanAccent transition-colors">
+          <Link to={registerLink} className="text-accentBlue font-medium hover:text-cyanAccent transition-colors">
             Register here
           </Link>
         </p>

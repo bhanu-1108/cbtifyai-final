@@ -103,7 +103,7 @@ export async function generateCbtFromFile(fileBuffer, mimetype, originalname, cr
   const testDoc = {
     _id: testId,
     title: `AI-Generated Test: ${originalname}`,
-    description: `Generated from ${originalname} using Hugging Face Qwen2.5-7B-Instruct`,
+    description: `Customized assessment generated from uploaded document "${originalname}".`,
     timeLimit: Math.max(5, normalizedQuestions.length * 3),
     createdBy: createdBy || 'system',
     createdAt: new Date(),

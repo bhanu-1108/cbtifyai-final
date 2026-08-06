@@ -159,7 +159,7 @@ const UploadPage = () => {
                   <p className="text-xs text-mutedGray mt-1">or click to browse from directory</p>
                 </div>
                 <div className="text-[10px] text-mutedGray max-w-xs leading-normal">
-                  Supported formats: PDF, JPG, PNG, JPEG. Maximum file size: 50MB. Scanned images are automatically OCR-resolved using PaddleOCR.
+                  Supported formats: PDF, JPG, PNG, JPEG. Maximum file size: 50MB. Scanned images and notes are automatically text-processed.
                 </div>
               </label>
             </div>
@@ -209,8 +209,8 @@ const UploadPage = () => {
                      <CheckCircle2 className="w-3.5 h-3.5" />}
                   </div>
                   <div>
-                    <h5 className={`text-xs font-bold ${conversionStatus === 'uploading' ? 'text-mutedGray' : 'text-white'}`}>PaddleOCR &amp; PyMuPDF Text Extraction</h5>
-                    <p className="text-[10px] text-mutedGray mt-0.5">Extracting passages via Python OCR microservice and cleaning noise.</p>
+                    <h5 className={`text-xs font-bold ${conversionStatus === 'uploading' ? 'text-mutedGray' : 'text-white'}`}>Layout &amp; Content Extraction</h5>
+                    <p className="text-[10px] text-mutedGray mt-0.5">Extracting document passages and removing background noise.</p>
                   </div>
                 </div>
 
@@ -225,7 +225,7 @@ const UploadPage = () => {
                      <CheckCircle2 className="w-3.5 h-3.5" />}
                   </div>
                   <div>
-                    <h5 className={`text-xs font-bold ${(conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'text-mutedGray' : 'text-white'}`}>Hugging Face Qwen2.5-7B Generation</h5>
+                    <h5 className={`text-xs font-bold ${(conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'text-mutedGray' : 'text-white'}`}>CBTify.ai Question Synthesis</h5>
                     <p className="text-[10px] text-mutedGray mt-0.5">Synthesizing multiple choice questions, option sets, and bloom levels.</p>
                   </div>
                 </div>

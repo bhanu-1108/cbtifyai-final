@@ -77,7 +77,7 @@ app.get("/api/health", (_req, res) => {
     status: "ok",
     service: "CBTifyAI-Final Backend",
     database: "MongoDB Atlas",
-    aiEngine: "Hugging Face (Qwen/Qwen2.5-7B-Instruct)",
+    aiEngine: "CBTify.ai Engine",
     ocrEngine: process.env.PYTHON_OCR_URL || "http://localhost:8000",
   });
 });
@@ -507,6 +507,6 @@ if (process.env.NODE_ENV === "production") {
 const port = process.env.PORT || 5000;
 app.listen(port, () => {
   console.log(`\n🚀 CBTifyAI-Final Backend running on http://localhost:${port}`);
-  console.log(`🤖 AI Engine: Hugging Face Qwen/Qwen2.5-7B-Instruct`);
+  console.log(`🤖 AI Engine: CBTify.ai Engine`);
   console.log(`📄 OCR Microservice URL: ${process.env.PYTHON_OCR_URL || "http://localhost:8000"}\n`);
 });

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { User, Mail, Lock, Building, Cpu, AlertCircle } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
@@ -7,6 +7,10 @@ import GlassCard from '../components/GlassCard';
 const RegisterPage = () => {
   const { register } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const nextPath = searchParams.get('next') || searchParams.get('redirect') || '/dashboard';
+  const loginLink = `/login${location.search}`;
 
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -33,7 +37,7 @@ const RegisterPage = () => {
     try {
       await register(username, email, password, role, organizationName);
       setLoading(false);
-      navigate('/');
+      navigate(nextPath);
     } catch (err) {
       setLoading(false);
       setError(err.message || 'Error creating account. Please try again.');
@@ -167,7 +171,7 @@ const RegisterPage = () => {
 
         <p className="text-center text-xs text-mutedGray mt-6">
           Already have an account?{' '}
-          <Link to="/login" className="text-accentBlue font-medium hover:text-cyanAccent transition-colors">
+          <Link to={loginLink} className="text-accentBlue font-medium hover:text-cyanAccent transition-colors">
             Sign In here
           </Link>
         </p>
