@@ -1,11 +1,13 @@
 import dns from 'node:dns';
 import { MongoClient } from 'mongodb';
 
-try {
-  dns.setDefaultResultOrder('ipv4first');
-  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
-} catch (_e) {
-  // Fallback if DNS server overrides are restricted
+if (process.env.NODE_ENV !== 'production') {
+  try {
+    dns.setDefaultResultOrder('ipv4first');
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+  } catch (_e) {
+    // Fallback if DNS server overrides are restricted
+  }
 }
 
 let clientInstance = null;
@@ -22,8 +24,9 @@ export async function getDb() {
   }
 
   clientInstance = new MongoClient(uri, {
-    serverSelectionTimeoutMS: 15000,
-    connectTimeoutMS: 15000,
+    serverSelectionTimeoutMS: 20000,
+    connectTimeoutMS: 20000,
+    tls: true,
   });
 
   await clientInstance.connect();
