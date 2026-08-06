@@ -46,8 +46,8 @@ export async function extractText(fileBuffer, mimetype, originalname) {
   } catch (err) {
     if (err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND') {
       throw new Error(
-        `OCR microservice is unavailable at ${OCR_BASE_URL}. ` +
-          'Ensure the FastAPI service is running (cd backend/python && uvicorn main:app --reload).'
+        `Image OCR service is unavailable at ${OCR_BASE_URL}. ` +
+          'To process scanned image files (PNG/JPG), start the Python OCR microservice (cd backend/python && uvicorn main:app --port 8000) or upload PDF documents directly.'
       );
     }
     const detail = err.response?.data?.detail || err.message;
