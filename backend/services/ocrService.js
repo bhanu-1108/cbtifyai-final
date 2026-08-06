@@ -106,13 +106,17 @@ function extractRawPdfText(fileBuffer) {
     const regexTj = /\(([^)]+)\)\s*Tj/g;
     let match;
     while ((match = regexTj.exec(pdfString)) !== null) {
-      if (match[1] && match[1].trim().length > 1) {
-        textMatches.push(match[1]);
+      const txt = (match[1] || '').trim();
+      if (txt.length > 1 && !/^(Font|Type|Subtype|ProcSet|MediaBox|CropBox|Rotate|Filter|Length|Catalog|Pages|Root)/i.test(txt)) {
+        textMatches.push(txt);
       }
     }
     const clean = textMatches.join(' ').replace(/\\/g, '').replace(/\s+/g, ' ').trim();
     if (clean.length > 50) return clean;
-    return (pdfString.match(/[A-Za-z0-9\s.,?!'\":;()\-]{25,}/g) || []).join(' ').replace(/\s+/g, ' ').trim();
+
+    const matches = pdfString.match(/[A-Za-z0-9\s.,?!'\":;()\-]{30,}/g) || [];
+    const filtered = matches.filter(m => !/(FontDescriptor|BaseFont|Encoding|FontName|PDF-1\.|endobj|stream)/i.test(m));
+    return filtered.join(' ').replace(/\s+/g, ' ').trim();
   } catch (_e) {
     return '';
   }

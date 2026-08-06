@@ -31,13 +31,7 @@ export function cleanText(rawText) {
   // 3. Remove page number lines
   text = text.replace(/^[\s\-–—]*(?:page|pg\.?|p\.?)?\s*\d+\s*(?:of\s*\d+)?[\s\-–—]*$/gim, '');
 
-  // 4. Remove common header/footer boilerplate (ALL CAPS ≤ 60 chars, ≤ 5 words)
-  text = text.replace(/^[A-Z0-9 \t\-–—:\.]{1,60}$/gm, (match) => {
-    const wordCount = match.trim().split(/\s+/).length;
-    return wordCount <= 5 ? '' : match;
-  });
-
-  // 5. Remove URLs and email addresses (OCR noise in footers)
+  // 4. Remove URLs and email addresses (OCR noise in footers)
   text = text.replace(/https?:\/\/\S+/gi, '');
   text = text.replace(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/g, '');
 
