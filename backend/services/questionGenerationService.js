@@ -62,9 +62,12 @@ export async function generateCbtFromFile(fileBuffer, mimetype, originalname, cr
   // ── Step 2: Clean text ───────────────────────────────────────────────────────
   console.log('[Pipeline] Step 2/5: Cleaning extracted text …');
   const cleanedText = cleanText(rawText);
+  const wordCount = cleanedText.split(/\s+/).filter(w => w.length > 2).length;
 
-  if (cleanedText.length < 50) {
-    throw new Error('After cleaning, the text is too short to generate questions.');
+  if (cleanedText.length < 150 || wordCount < 15) {
+    throw new Error(
+      `The file "${originalname}" contains scanned images or insufficient readable text (${wordCount} words found). Please upload a standard text PDF document (such as study notes, textbook chapters, or question papers).`
+    );
   }
 
   // ── Step 3: Chunk text ───────────────────────────────────────────────────────
