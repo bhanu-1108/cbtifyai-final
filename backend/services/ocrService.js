@@ -4,12 +4,22 @@
  * High-performance text extraction engine.
  * Supports:
  *   1. Python FastAPI OCR Microservice (PaddleOCR + PyMuPDF) if online
- *   2. Native Node.js pdf-parse engine (Zero-dependency cloud PDF processing)
+ *   2. Native Node.js PDFParse engine (Zero-dependency cloud PDF processing)
  */
 
+import { createRequire } from 'node:module';
 import axios from 'axios';
 import FormData from 'form-data';
-import pdfParse from 'pdf-parse';
+
+const require = createRequire(import.meta.url);
+
+let PDFParse = null;
+try {
+  const pdfParsePkg = require('pdf-parse');
+  PDFParse = pdfParsePkg.PDFParse || pdfParsePkg.default || pdfParsePkg;
+} catch (_e) {
+  // pdf-parse module resolution fallback
+}
 
 // Base URL of the FastAPI OCR microservice (from environment)
 const OCR_BASE_URL = process.env.PYTHON_OCR_URL || 'http://localhost:8000';
@@ -47,20 +57,32 @@ export async function extractText(fileBuffer, mimetype, originalname) {
       console.log(`[OCR] Extracted ${response.data.text.length} chars via Python OCR service.`);
       return response.data.text;
     }
-  } catch (err) {
-    console.log(`[OCR] Python microservice unavailable at ${OCR_BASE_URL}. Using cloud fallback mode...`);
+  } catch (_err) {
+    console.log(`[OCR] Python microservice unavailable at ${OCR_BASE_URL}. Using cloud PDF fallback mode...`);
   }
 
-  // Attempt 2: Native Node.js PDF parsing for PDF files
+  // Attempt 2: Native PDF parsing for PDF files
   if (isPdf) {
-    try {
-      const parsed = await pdfParse(fileBuffer);
-      if (parsed?.text && parsed.text.trim().length >= 20) {
-        console.log(`[PDF] Extracted ${parsed.text.length} characters natively via pdf-parse.`);
-        return parsed.text;
+    if (PDFParse) {
+      try {
+        const parser = new PDFParse(new Uint8Array(fileBuffer));
+        await parser.load();
+        const textResult = await parser.getText();
+        const extracted = typeof textResult === 'string' ? textResult : (textResult?.text || textResult?.pages?.map(p => p.text).join('\n') || '');
+        if (extracted && extracted.trim().length >= 20) {
+          console.log(`[PDF] Extracted ${extracted.length} characters natively via PDFParse.`);
+          return extracted;
+        }
+      } catch (pdfErr) {
+        console.log('[PDF] PDFParse failed, trying raw text stream fallback:', pdfErr.message);
       }
-    } catch (pdfErr) {
-      console.error('[PDF] Native pdf-parse extraction error:', pdfErr.message);
+    }
+
+    // Attempt 3: Raw PDF text stream fallback
+    const rawText = extractRawPdfText(fileBuffer);
+    if (rawText && rawText.length >= 20) {
+      console.log(`[PDF] Extracted ${rawText.length} characters via raw stream fallback.`);
+      return rawText;
     }
   }
 
@@ -73,6 +95,25 @@ export async function extractText(fileBuffer, mimetype, originalname) {
   }
 
   throw new Error(
-    `Unable to extract readable text from PDF "${originalname}". Please ensure the PDF contains text or upload a standard study document.`
+    `Unable to extract readable text from PDF "${originalname}". Please ensure the PDF contains readable text or upload a standard study document.`
   );
+}
+
+function extractRawPdfText(fileBuffer) {
+  try {
+    const pdfString = fileBuffer.toString('latin1');
+    const textMatches = [];
+    const regexTj = /\(([^)]+)\)\s*Tj/g;
+    let match;
+    while ((match = regexTj.exec(pdfString)) !== null) {
+      if (match[1] && match[1].trim().length > 1) {
+        textMatches.push(match[1]);
+      }
+    }
+    const clean = textMatches.join(' ').replace(/\\/g, '').replace(/\s+/g, ' ').trim();
+    if (clean.length > 50) return clean;
+    return (pdfString.match(/[A-Za-z0-9\s.,?!'\":;()\-]{25,}/g) || []).join(' ').replace(/\s+/g, ' ').trim();
+  } catch (_e) {
+    return '';
+  }
 }
