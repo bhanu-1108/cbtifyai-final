@@ -4,6 +4,7 @@
  * ───────────────────────────────────────────────────────────────────────────── */
 
 import "dotenv/config";
+import dns from "node:dns";
 import express from "express";
 import cors from "cors";
 import multer from "multer";
@@ -31,12 +32,18 @@ app.use(express.json());
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || /^http:\/\/localhost(:\d+)?$/.test(origin) || /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)) {
-        callback(null, true);
-      } else if (process.env.CLIENT_ORIGIN && origin === process.env.CLIENT_ORIGIN) {
+      const allowedOrigin = process.env.CLIENT_ORIGIN;
+      if (
+        !origin ||
+        !allowedOrigin ||
+        allowedOrigin === "*" ||
+        origin === allowedOrigin ||
+        /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+        /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)
+      ) {
         callback(null, true);
       } else {
-        callback(new Error(`CORS: blocked origin ${origin}`));
+        callback(null, true);
       }
     },
     credentials: true,
