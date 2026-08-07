@@ -48,9 +48,8 @@ async function initializeDatabase(db) {
   await db.collection('submissions').createIndex({ testId: 1, createdAt: -1 });
   await db.collection('documents').createIndex({ createdAt: -1 });
 
-  // Only seed if the database is empty
-  const userCount = await db.collection('users').countDocuments();
-  if (userCount > 0) return;
+  // Auto-seeding disabled to prevent demo test counts and demo data from auto-populating
+  return;
 
   console.log('📦 Database empty — seeding initial demo data...');
 

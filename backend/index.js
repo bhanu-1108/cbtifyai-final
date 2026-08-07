@@ -91,6 +91,31 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+// Admin Endpoint: Clear Demo Data & Test Counts
+app.get("/api/admin/clear-demo-data", async (_req, res) => {
+  try {
+    const subRes = await db.collection("submissions").deleteMany({});
+    const testRes = await db.collection("tests").deleteMany({ createdBy: "system" });
+    const studRes = await db.collection("students").deleteMany({});
+    const docRes = await db.collection("documents").deleteMany({});
+    const schedRes = await db.collection("schedules").deleteMany({});
+
+    res.json({
+      success: true,
+      message: "Demo test counts and demo data cleared successfully!",
+      deleted: {
+        submissions: subRes.deletedCount,
+        demoTests: testRes.deletedCount,
+        students: studRes.deletedCount,
+        documents: docRes.deletedCount,
+        schedules: schedRes.deletedCount
+      }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // ── Authentication ───────────────────────────────────────────────────────────
 app.post("/api/auth/register", async (req, res) => {
   try {
