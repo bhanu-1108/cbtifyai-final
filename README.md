@@ -1,158 +1,126 @@
-# 🚀 CBTifyAI-Final — AI-Powered CBT Exam Platform
+# 🎓 CBTify.ai
 
-CBTifyAI-Final is a production-ready, full-stack MERN application integrated with Python FastAPI OCR (PaddleOCR + PyMuPDF) and Hugging Face AI (`Qwen/Qwen2.5-7B-Instruct`) for converting study PDFs and images into Computer-Based Test (CBT) exams.
+### AI-Powered Document-to-CBT Examination Platform
 
----
-
-## 🏗️ Architecture & AI Pipeline Flow
-
-```text
-Upload PDF/JPG/PNG
-      ↓
-Express Backend (Node.js)
-      ↓
-Python FastAPI OCR Microservice
-      ├── Text PDF  →  Extract using PyMuPDF (fitz)
-      └── Scanned PDF / Image  →  Use PaddleOCR
-      ↓
-Text Cleaning (Noise removal, page numbers, duplicate line strip)
-      ↓
-Chunking (2000–3500 char paragraph-aware chunks)
-      ↓
-Hugging Face Inference API (Qwen/Qwen2.5-7B-Instruct)
-      ↓
-Generate Structured JSON Array
-      ↓
-Question Schema Validation
-      ↓
-Store Test & Documents in MongoDB Atlas
-      ↓
-Generate Interactive CBT Test
-      ↓
-Student / Admin Dashboard Analytics & Roster
-```
+> Transform PDFs, images, scanned notes, and question papers into interactive Computer-Based Tests with AI-powered question generation, automated evaluation, and detailed performance analytics.
 
 ---
 
-## 📁 Directory Structure
+## 🔗 Live Demo & Project Links
 
-```text
-CBTifyAI-Final/
-├── frontend/                     # React + Vite + TailwindCSS Frontend
-│   ├── public/                   # Favicon and static icons
-│   ├── src/
-│   │   ├── components/           # GlassCard, Navbar, Sidebar
-│   │   ├── context/              # AppContext.jsx (State & DB sync)
-│   │   ├── pages/                # Landing, Login, Register, Dashboard, Upload, Test, Analytics, OrgPortal, AdminAnalytics
-│   │   ├── App.jsx               # Routes & Layout wrappers
-│   │   ├── main.jsx              # Entry point
-│   │   └── index.css             # Glassmorphism & Custom styling
-│   ├── package.json
-│   ├── vite.config.js
-│   └── tailwind.config.js
-├── backend/                      # Node.js Express Backend
-│   ├── python/                   # Python FastAPI OCR Microservice
-│   │   ├── main.py               # FastAPI endpoints (/ocr/image, /ocr/pdf)
-│   │   ├── ocr.py                # PaddleOCR & PyMuPDF logic
-│   │   └── requirements.txt      # Python dependencies
-│   ├── services/
-│   │   ├── ocrService.js         # Calls FastAPI OCR microservice
-│   │   ├── huggingfaceService.js # Qwen2.5-7B-Instruct generator
-│   │   ├── chunkService.js       # Text chunking logic
-│   │   ├── validatorService.js   # Question schema validator
-│   │   └── questionGenerationService.js # Full pipeline orchestrator
-│   ├── utils/
-│   │   └── textCleaner.js        # Text cleaning and normalisation
-│   ├── db.js                     # MongoDB connection & initial seeding
-│   ├── index.js                  # Main Express server entry point
-│   ├── package.json
-│   └── .env
-├── .env.example
-└── README.md
-```
+| Resource | Link |
+|---|---|
+| 🌐 **Live Prototype** https://cbtifyai.vercel.app/
+| 🎥 **Demo Video** https://youtu.be/8j4DMaJDMuI 
+| 📄 **Sample Test Material** https://drive.google.com/file/d/1n5I2bj__BvIHCsJq8Z2b2gnxqw-mjsmn/view?usp=sharing
+| 💻 **GitHub Repository** https://github.com/bhanu-1108/cbtifyai-final
+
+### 🧪 Quick Prototype Test
+
+You can test the complete workflow:
+
+**1.** Download the sample PDF  
+**2.** Open the live prototype  
+**3.** Upload the PDF/Image  
+**4.** Generate the CBT  
+**5.** Attempt the examination  
+**6.** View the results and analytics  
+
+### 🏫 Institution Demo
+
+For the institution workflow:
+
+**Institution Login → Upload Material → Generate CBT → Create Shareable Link → Student Login → Attempt Test → Institution Analytics**
 
 ---
 
-## ⚙️ Installation & Setup
+## 🎥 Project Demonstration
 
-### 1. Prerequisites
-- **Node.js**: v18+
-- **Python**: 3.9–3.11 (with `pip`)
-- **MongoDB Atlas Connection URI**
+Watch the complete 6–8 minute demonstration:
 
----
+**[▶️ Watch CBTify.ai Full Demo](https://youtu.be/8j4DMaJDMuI )**
 
-### 2. Python FastAPI OCR Microservice Setup
+The video demonstrates:
 
-```bash
-cd backend/python
-python -m venv .venv
-# On Windows:
-.venv\Scripts\activate
-# On Linux/macOS:
-# source .venv/bin/activate
+- 📄 PDF/Image upload
+- 🔍 OCR and document processing
+- 🤖 AI question generation
+- 📝 CBT generation
+- ⏱️ Timed examination
+- 📊 Student analytics
+- 🏫 Institution workflow
+- 🔗 Shareable examination links
+- 👨‍🎓 Student attempt
+- 📈 Individual and class-level performance analysis
 
-pip install -r requirements.txt
-```
+- ## ✨ Key Features
 
-Run FastAPI server:
-```bash
-uvicorn main:app --reload --port 8000
-```
-*FastAPI OCR will run on http://localhost:8000*
+### 🤖 AI-Powered CBT Generation
+- Convert PDFs, JPGs, PNGs, scanned notes, and question papers into CBT examinations.
+- Automatically generate structured MCQs from uploaded study material.
+- Generate 4 options, correct answers, explanations, topics, and difficulty levels.
+- Classify questions using Bloom's Taxonomy.
 
----
+### 📄 Intelligent Document Processing
+- Supports both text-based and scanned PDFs.
+- Uses PyMuPDF for fast text extraction from digital PDFs.
+- Uses PaddleOCR for scanned documents and images.
+- Automatically cleans OCR noise, headers, footers, and page numbers.
+- Paragraph-aware text chunking for better AI processing.
 
-### 3. Node.js Express Backend Setup
+### 🧠 Smart Question Validation
+- Validates AI-generated questions before storing them.
+- Ensures exactly four unique options.
+- Checks correct-answer validity.
+- Removes duplicate questions.
+- Ensures required explanations and classifications are present.
 
-```bash
-cd backend
-npm install
-```
+### 📝 Interactive CBT Examination
+- Real-time countdown timer.
+- Question navigation palette.
+- Flag questions for later review.
+- Automatic submission when time expires.
+- Instant automated grading.
+- Question-wise answer review with explanations.
 
-Configure `backend/.env`:
-```env
-MONGODB_URI=mongodb+srv://bhanusaran5002:wB3utSSgmS2z3N2V@cluster0.km5bvpl.mongodb.net/
-PORT=5000
-HF_API_KEY=hf_your_hugging_face_token_here
-PYTHON_OCR_URL=http://localhost:8000
-CLIENT_ORIGIN=http://localhost:5173
-```
+### 👨‍🎓 Student Dashboard
+- Track total tests taken.
+- Monitor average accuracy.
+- Track time spent on examinations.
+- View improvement rate.
+- Access previous attempts.
+- Analyze topic-wise and difficulty-wise performance.
 
-Run Express backend:
-```bash
-npm start
-# or for development:
-npm run dev
-```
-*Express backend will run on http://localhost:5000*
+### 🏫 Institution Portal
+- Upload study material and automatically create examinations.
+- Generate shareable examination links.
+- Share tests with registered students.
+- Manage student rosters.
+- Schedule examinations.
+- Track individual student performance.
+- Analyze overall class performance.
 
----
+### 📊 Advanced Analytics
+- Individual student performance analysis.
+- Class-level performance insights.
+- Topic-wise performance.
+- Easy/Medium/Hard performance breakdown.
+- Bloom's Taxonomy skill analysis.
+- Question error-rate analysis.
+- Student leaderboard and performance comparison.
 
-### 4. React Frontend Setup
+### 🔐 Examination Integrity
+- Secure authentication and role-based access.
+- Timed examinations.
+- Window-focus monitoring.
+- Tab-switch / blur event detection.
+- Controlled examination access.
 
-```bash
-cd frontend
-npm install
-```
-
-Configure `frontend/.env`:
-```env
-VITE_API_BASE_URL=http://localhost:5000
-```
-
-Run React Vite dev server:
-```bash
-npm run dev
-```
-*React frontend will run on http://localhost:5173*
-
----
-
-## 🚀 Key Features
-
-1. **Zero Gemini References**: Fully decoupled from Gemini API; powered by Hugging Face `Qwen/Qwen2.5-7B-Instruct`.
-2. **Dual OCR System**: PyMuPDF fast-parsing for text PDFs, PaddleOCR fallback for scanned/image PDFs and images.
-3. **Automatic Question Validation**: Strict JSON schema validation ensuring 4 options, valid zero-based correct index, difficulty rating, and Bloom taxonomy tags.
-4. **MongoDB Persistence**: Stores generated CBT tests, documents metadata, student rosters, exam schedules, and submission attempts.
-5. **Role-Based Views**: Student Dashboard with progress charts & practice presets, plus Organization Portal with roster exports, test links, and student heatmaps.
+### ⚡ Modular AI Architecture
+- React + Vite frontend.
+- Node.js + Express backend.
+- Python FastAPI OCR microservice.
+- PaddleOCR document processing.
+- Qwen2.5-7B-Instruct through Hugging Face.
+- MongoDB Atlas for persistent data storage.
+- Independent AI/OCR services for easier maintenance and scaling.
