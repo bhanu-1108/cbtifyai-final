@@ -95,7 +95,7 @@ app.get("/api/health", (_req, res) => {
 app.get("/api/admin/clear-demo-data", async (_req, res) => {
   try {
     const subRes = await db.collection("submissions").deleteMany({});
-    const testRes = await db.collection("tests").deleteMany({ createdBy: "system" });
+    const testRes = await db.collection("tests").deleteMany({});
     const studRes = await db.collection("students").deleteMany({});
     const docRes = await db.collection("documents").deleteMany({});
     const schedRes = await db.collection("schedules").deleteMany({});
@@ -105,7 +105,7 @@ app.get("/api/admin/clear-demo-data", async (_req, res) => {
       message: "Demo test counts and demo data cleared successfully!",
       deleted: {
         submissions: subRes.deletedCount,
-        demoTests: testRes.deletedCount,
+        tests: testRes.deletedCount,
         students: studRes.deletedCount,
         documents: docRes.deletedCount,
         schedules: schedRes.deletedCount
@@ -253,6 +253,22 @@ app.post("/api/tests", async (req, res) => {
   } catch (error) {
     console.error("[Tests] Create test error:", error);
     res.status(500).json({ error: "Database error saving test." });
+  }
+});
+
+app.delete("/api/tests/:id", async (req, res) => {
+  try {
+    const testId = req.params.id;
+    const result = await db.collection("tests").deleteOne({ _id: testId });
+    await db.collection("submissions").deleteMany({ testId });
+    await db.collection("documents").deleteMany({ testId });
+    if (result.deletedCount === 0) {
+      return res.status(404).json({ error: "Test not found." });
+    }
+    res.json({ success: true, message: "Test deleted successfully." });
+  } catch (error) {
+    console.error("[Tests] Delete test error:", error);
+    res.status(500).json({ error: "Database error deleting test." });
   }
 });
 

@@ -508,6 +508,18 @@ export const AppProvider = ({ children }) => {
     };
   };
 
+  const deleteTest = async (testId) => {
+    try {
+      await fetch(`${apiBaseUrl}/api/tests/${encodeURIComponent(testId)}`, {
+        method: "DELETE"
+      });
+      setTests(prev => prev.filter(t => t.id !== testId && t._id !== testId));
+      fetchData();
+    } catch (err) {
+      console.error("Failed to delete test:", err);
+    }
+  };
+
   return (
     <AppContext.Provider value={{
       currentUser,
@@ -523,6 +535,7 @@ export const AppProvider = ({ children }) => {
       uploadDocument,
       uploadGeneratedTest,
       submitTest,
+      deleteTest,
       addStudent,
       scheduleExam,
       getAnalytics

@@ -9,12 +9,13 @@ import {
   ArrowRight, 
   BookOpen, 
   Plus, 
-  Calendar 
+  Calendar,
+  Trash2
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 
 const DashboardPage = () => {
-  const { currentUser, tests, schedules, getAnalytics } = useApp();
+  const { currentUser, tests, schedules, getAnalytics, deleteTest } = useApp();
   const navigate = useNavigate();
   const analytics = getAnalytics();
 
@@ -87,31 +88,58 @@ const DashboardPage = () => {
           </div>
 
           <div className="grid grid-cols-1 gap-4">
-            {availableTests.map((test) => (
-              <GlassCard key={test.id} glowColor="purple" className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-white/15 transition-all">
-                <div className="space-y-1.5 max-w-xl">
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span>{test.title}</span>
-                    {test.createdBy !== 'system' && (
-                      <span className="text-[9px] bg-purpleGlow/25 text-purpleGlow px-2 py-0.5 rounded border border-purpleGlow/30">AI Extracted</span>
-                    )}
-                  </h3>
-                  <p className="text-xs text-mutedGray leading-relaxed">{test.description}</p>
-                  <div className="flex items-center space-x-4 text-[10px] text-mutedGray font-mono">
-                    <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {test.timeLimit} mins</span>
-                    <span>•</span>
-                    <span>{test.questions.length} Questions</span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => navigate(`/test/${test.id}`)}
-                  className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-accentBlue hover:border-accentBlue text-xs font-semibold text-white transition-all flex items-center gap-1.5 flex-shrink-0 group"
+            {availableTests.length === 0 ? (
+              <GlassCard glowColor="purple" className="p-8 text-center space-y-3">
+                <p className="text-sm font-semibold text-gray-300">No practice exams available right now.</p>
+                <p className="text-xs text-mutedGray">Upload a PDF/Image document to generate a customized AI assessment.</p>
+                <Link
+                  to="/upload"
+                  className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-accentBlue/20 text-accentBlue border border-accentBlue/30 text-xs font-semibold hover:bg-accentBlue hover:text-white transition-all mt-2"
                 >
-                  <span>Attempt Test</span>
-                  <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
-                </button>
+                  <Plus className="w-4 h-4" />
+                  <span>Upload PDF or Image</span>
+                </Link>
               </GlassCard>
-            ))}
+            ) : (
+              availableTests.map((test) => (
+                <GlassCard key={test.id} glowColor="purple" className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-white/15 transition-all">
+                  <div className="space-y-1.5 max-w-xl">
+                    <h3 className="text-base font-bold text-white flex items-center gap-2">
+                      <span>{test.title}</span>
+                      {test.createdBy !== 'system' && (
+                        <span className="text-[9px] bg-purpleGlow/25 text-purpleGlow px-2 py-0.5 rounded border border-purpleGlow/30">AI Extracted</span>
+                      )}
+                    </h3>
+                    <p className="text-xs text-mutedGray leading-relaxed">{test.description}</p>
+                    <div className="flex items-center space-x-4 text-[10px] text-mutedGray font-mono">
+                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {test.timeLimit} mins</span>
+                      <span>•</span>
+                      <span>{test.questions.length} Questions</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => navigate(`/test/${test.id}`)}
+                      className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-accentBlue hover:border-accentBlue text-xs font-semibold text-white transition-all flex items-center gap-1.5 group"
+                    >
+                      <span>Attempt Test</span>
+                      <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Are you sure you want to delete "${test.title}"?`)) {
+                          deleteTest(test.id || test._id);
+                        }
+                      }}
+                      title="Remove test"
+                      className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 text-xs transition-all"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </GlassCard>
+              ))
+            )}
           </div>
         </div>
 

@@ -1,6 +1,12 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import dns from 'node:dns';
 import { MongoClient } from 'mongodb';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 if (process.env.NODE_ENV !== 'production') {
   try {
@@ -27,9 +33,9 @@ async function clearTestCountsAndDemoData() {
     const subRes = await db.collection('submissions').deleteMany({});
     console.log(`   - Deleted ${subRes.deletedCount} submissions (resets student test counts)`);
 
-    // 2. Delete demo tests created by system
-    const testRes = await db.collection('tests').deleteMany({ createdBy: 'system' });
-    console.log(`   - Deleted ${testRes.deletedCount} demo tests`);
+    // 2. Delete all tests (both system demo tests and user-generated tests)
+    const testRes = await db.collection('tests').deleteMany({});
+    console.log(`   - Deleted ${testRes.deletedCount} tests`);
 
     // 3. Delete demo roster students with hardcoded test counts
     const studRes = await db.collection('students').deleteMany({});
