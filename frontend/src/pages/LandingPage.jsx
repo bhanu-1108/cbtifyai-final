@@ -168,6 +168,15 @@ const LandingPage = () => {
                     <span>Organization Portal</span>
                   </Link>
                 )}
+                <a
+                  href="https://youtu.be/8j4DMaJDMuI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-semibold transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer"
+                >
+                  <Play className="w-4 h-4 text-cyanAccent fill-cyanAccent" />
+                  <span>Watch Demo</span>
+                </a>
               </>
             ) : (
               <>
@@ -178,16 +187,15 @@ const LandingPage = () => {
                   <span>Start Free</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
-                <button
-                  onClick={() => {
-                    const el = document.getElementById('how-it-works');
-                    if (el) el.scrollIntoView({ behavior: 'smooth' });
-                  }}
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-medium transition-all flex items-center justify-center space-x-2 text-sm"
+                <a
+                  href="https://youtu.be/8j4DMaJDMuI"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-medium transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer"
                 >
                   <Play className="w-4 h-4 text-cyanAccent fill-cyanAccent" />
                   <span>Watch Demo</span>
-                </button>
+                </a>
               </>
             )}
           </motion.div>
