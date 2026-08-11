@@ -468,14 +468,14 @@ const LandingPage = () => {
             <GlassCard glowColor="purple" className="p-4">
               <div className="rounded-xl overflow-hidden border border-white/5 bg-slate-950/60 p-4 space-y-4">
                 <div className="flex justify-between items-center text-xs pb-3 border-b border-white/10">
-                  <span className="font-bold text-white flex items-center gap-1.5"><Users className="w-4 h-4 text-purpleGlow" /> IPU UNIVERSITY ROSTER</span>
+                  <span className="font-bold text-white flex items-center gap-1.5"><Users className="w-4 h-4 text-purpleGlow" /> IIITK ROSTER</span>
                   <span className="text-mutedGray">Cohort: CS Prep-2026</span>
                 </div>
                 <div className="space-y-2">
                   {[
-                    { name: 'Alice Smith', email: 'alice@ipu.ac.in', score: '92%' },
-                    { name: 'Bob Johnson', email: 'bob@ipu.ac.in', score: '84%' },
-                    { name: 'Charlie Davis', email: 'charlie@ipu.ac.in', score: '96%' }
+                    { name: 'Alice Smith', email: 'alice@iiitk.ac.in', score: '92%' },
+                    { name: 'Bob Johnson', email: 'bob@iiitk.ac.in', score: '84%' },
+                    { name: 'Charlie Davis', email: 'charlie@iiitk.ac.in', score: '96%' }
                   ].map((s) => (
                     <div key={s.name} className="flex items-center justify-between p-2 rounded bg-white/5 text-xs">
                       <div>
