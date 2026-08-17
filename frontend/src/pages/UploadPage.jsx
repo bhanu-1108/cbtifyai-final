@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { 
@@ -7,11 +7,11 @@ import {
   Cpu, 
   CheckCircle2, 
   Play, 
-  AlertCircle,
-  FileCheck,
-  RotateCw,
-  Link2,
-  Copy,
+  AlertCircle, 
+  FileCheck, 
+  RotateCw, 
+  Link2, 
+  Copy, 
   CheckCheck
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
@@ -63,6 +63,9 @@ const UploadPage = () => {
     formData.append('file', file);
     if (currentUser?.id) {
       formData.append('createdBy', currentUser.id);
+    }
+    if (currentUser?.username) {
+      formData.append('username', currentUser.username);
     }
 
     try {
@@ -122,10 +125,13 @@ const UploadPage = () => {
 
   return (
     <div className="space-y-8 animate-fadeIn max-w-4xl mx-auto">
+      {/* Page Header */}
       <div className="pb-5 border-b border-white/5">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-white">AI Document Converter</h1>
+        <h1 className="text-2xl md:text-3xl font-extrabold text-white">
+          {currentUser?.role === 'organization' ? 'Generate New CBT Exam' : 'AI Document Converter'}
+        </h1>
         <p className="text-xs text-mutedGray mt-1">
-          Upload PDF notes, scanning files, homework assignments or question papers and transform them into CBT exams.
+          Upload PDF notes, homework assignments or question papers and transform them into standardized CBT exams.
         </p>
       </div>
 
@@ -226,7 +232,7 @@ const UploadPage = () => {
                   </div>
                   <div>
                     <h5 className={`text-xs font-bold ${(conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'text-mutedGray' : 'text-white'}`}>CBTify.ai Question Synthesis</h5>
-                    <p className="text-[10px] text-mutedGray mt-0.5">Synthesizing multiple choice questions, option sets, and bloom levels.</p>
+                    <p className="text-[10px] text-mutedGray mt-0.5">Synthesizing multiple choice questions, options, and bloom levels.</p>
                   </div>
                 </div>
 
@@ -280,6 +286,7 @@ const UploadPage = () => {
                           {linkCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           <span>{linkCopied ? 'Link Copied!' : 'Copy Shareable Link'}</span>
                         </button>
+
                         <button
                           onClick={() => navigate(`/test/${generatedTestId}`)}
                           className="w-full sm:flex-1 py-3 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 text-white text-xs font-bold transition-all flex items-center justify-center space-x-2"
@@ -287,6 +294,7 @@ const UploadPage = () => {
                           <Play className="w-4 h-4 fill-white" />
                           <span>Preview Test</span>
                         </button>
+
                         <button
                           onClick={resetForm}
                           className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-mutedGray hover:text-white transition-all"

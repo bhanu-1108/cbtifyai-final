@@ -23,7 +23,7 @@ try {
 
 // Base URL of the FastAPI OCR microservice (from environment)
 const OCR_BASE_URL = process.env.PYTHON_OCR_URL || 'http://localhost:8000';
-const OCR_TIMEOUT_MS = 15_000; // 15 seconds fast timeout before fallback
+const OCR_TIMEOUT_MS = 60_000; // 15 seconds fast timeout before fallback
 
 /**
  * Send a file buffer to the OCR service or fallback to native PDF parsing.
@@ -58,7 +58,7 @@ export async function extractText(fileBuffer, mimetype, originalname) {
       return response.data.text;
     }
   } catch (_err) {
-    console.log(`[OCR] Python microservice unavailable at ${OCR_BASE_URL}. Using cloud PDF fallback mode...`);
+    console.log(`[OCR] Python microservice request failed at ${OCR_BASE_URL}: `);
   }
 
   // Attempt 2: Native PDF parsing for PDF files

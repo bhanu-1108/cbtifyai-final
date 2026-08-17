@@ -43,7 +43,7 @@ const GlassCard = ({ children, className = '', glowColor = 'purple' }) => {
         }}
       />
       
-      {/* Content wrapper */}
+      {/* Content wrappert */}
       <div className="relative z-10">
         {children}
       </div>

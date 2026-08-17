@@ -6,7 +6,8 @@ import {
   UploadCloud, 
   BarChart2, 
   Users, 
-  LogOut
+  LogOut,
+  Sparkles
 } from 'lucide-react';
 
 const Sidebar = () => {
@@ -18,16 +19,19 @@ const Sidebar = () => {
     navigate('/');
   };
 
-  const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Upload Files', path: '/upload', icon: UploadCloud },
-    { name: 'My Analytics', path: '/analytics', icon: BarChart2 },
-    ...(currentUser?.role === 'organization' 
-      ? [
-          { name: 'Organization Portal', path: '/organization', icon: Users },
-        ]
-      : [])
-  ];
+  const isOrg = currentUser?.role === 'organization';
+
+  const navItems = isOrg
+    ? [
+        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { name: 'Generate CBT Exam', path: '/upload', icon: Sparkles },
+        { name: 'Organization Portal', path: '/organization', icon: Users },
+      ]
+    : [
+        { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { name: 'Upload Files', path: '/upload', icon: UploadCloud },
+        { name: 'My Analytics', path: '/analytics', icon: BarChart2 },
+      ];
 
   return (
     <aside className="w-64 h-[calc(100vh-80px)] sticky top-20 hidden md:flex flex-col border-r border-white/10 bg-darkBg/30 backdrop-blur-md p-4 justify-between">
@@ -38,7 +42,14 @@ const Sidebar = () => {
             {currentUser?.username?.substring(0, 2).toUpperCase()}
           </div>
           <div className="overflow-hidden">
-            <h4 className="text-sm font-semibold text-white truncate">{currentUser?.username}</h4>
+            <div className="flex items-center gap-1.5">
+              <h4 className="text-sm font-semibold text-white truncate">{currentUser?.username}</h4>
+              {isOrg && (
+                <span className="text-[9px] bg-purpleGlow/25 text-purpleGlow px-1.5 py-0.2 rounded border border-purpleGlow/30 font-bold">
+                  ORG
+                </span>
+              )}
+            </div>
             <p className="text-[11px] text-mutedGray truncate">{currentUser?.email}</p>
           </div>
         </div>

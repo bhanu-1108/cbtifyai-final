@@ -256,7 +256,49 @@ app.post("/api/tests", async (req, res) => {
   }
 });
 
-app.delete("/api/tests/:id", async (req, res) => {
+
+  app.put("/api/tests/:id", async (req, res) => {
+    try {
+      const testId = req.params.id;
+      const { title, description, timeLimit, questions } = req.body;
+      const existing = await db.collection("tests").findOne({ _id: testId });
+      if (!existing) {
+        return res.status(404).json({ error: "Test not found." });
+      }
+
+      const updatedQuestions = Array.isArray(questions)
+        ? questions.map((q, i) => ({
+            _id: q._id || `${testId}-q-${i}`,
+            questionText: q.questionText || q.question || `Question ${i + 1}`,
+            options: Array.isArray(q.options) ? q.options : [],
+            correctAnswer: typeof q.correctAnswer === "number" ? q.correctAnswer : 0,
+            explanation: q.explanation || "",
+            difficulty: q.difficulty || "Medium",
+            topic: q.topic || "",
+            bloomLevel: q.bloomLevel || "Understand",
+          }))
+        : existing.questions;
+
+      const updateDoc = {
+        $set: {
+          title: title || existing.title,
+          description: description !== undefined ? description : existing.description,
+          timeLimit: Number(timeLimit) || existing.timeLimit,
+          questions: updatedQuestions,
+          updatedAt: new Date(),
+        }
+      };
+
+      await db.collection("tests").updateOne({ _id: testId }, updateDoc);
+      const updatedTest = await db.collection("tests").findOne({ _id: testId });
+      res.json(serialize(updatedTest));
+    } catch (error) {
+      console.error("[Tests] Update test error:", error);
+      res.status(500).json({ error: "Database error updating test." });
+    }
+  });
+
+  app.delete("/api/tests/:id", async (req, res) => {
   try {
     const testId = req.params.id;
     const result = await db.collection("tests").deleteOne({ _id: testId });
@@ -533,6 +575,7 @@ app.post("/api/convert-to-cbt", upload.single("file"), async (req, res) => {
 
   try {
     const createdBy = req.body?.createdBy || req.query?.createdBy || "system";
+    const answerKey = req.body?.answerKey || req.query?.answerKey || null;
 
     const { testDoc, extractedText } = await generateCbtFromFile(
       file.buffer,

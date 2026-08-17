@@ -16,22 +16,26 @@ const Navbar = () => {
   };
 
   const isActive = (path) => location.pathname === path;
+  const isOrg = currentUser?.role === 'organization';
 
   const navLinks = currentUser
-    ? [
-      { name: 'Dashboard', path: '/dashboard' },
-      { name: 'Upload PDF/Image', path: '/upload' },
-      { name: 'Analytics', path: '/analytics' },
-      ...(currentUser.role === 'organization'
-        ? [{ name: 'Organization Portal', path: '/organization' }]
-        : [])
-    ]
+    ? (isOrg
+        ? [
+            { name: 'Dashboard', path: '/dashboard' },
+            { name: 'Generate CBT Exam', path: '/upload' },
+            { name: 'Organization Portal', path: '/organization' }
+          ]
+        : [
+            { name: 'Dashboard', path: '/dashboard' },
+            { name: 'Upload PDF/Image', path: '/upload' },
+            { name: 'Analytics', path: '/analytics' }
+          ])
     : [
-      { name: 'Features', path: '/#features' },
-      { name: 'How It Works', path: '/#how-it-works' },
-      { name: 'About Us', path: '/#about' },
-      { name: 'Contact Us', path: '/#contact' }
-    ];
+        { name: 'Features', path: '/#features' },
+        { name: 'How It Works', path: '/#how-it-works' },
+        { name: 'About Us', path: '/#about' },
+        { name: 'Contact Us', path: '/#contact' }
+      ];
 
   const handleNavClick = (path) => {
     setMobileMenuOpen(false);
@@ -73,8 +77,9 @@ const Navbar = () => {
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link.path)}
-                className={`text-base font-semibold transition-colors hover:text-white ${isActive(link.path) ? 'text-accentBlue text-glow-blue' : 'text-mutedGray'
-                  }`}
+                className={`text-base font-semibold transition-colors hover:text-white ${
+                  isActive(link.path) ? 'text-accentBlue text-glow-blue' : 'text-mutedGray'
+                }`}
               >
                 {link.name}
               </button>
@@ -88,8 +93,8 @@ const Navbar = () => {
                 <div className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-white/5 border border-white/10">
                   <User className="w-4.5 h-4.5 text-purpleGlow" />
                   <span className="text-base font-semibold text-white">{currentUser.username}</span>
-                  {currentUser.role === 'organization' && (
-                    <span className="text-[10px] bg-accentBlue/20 text-accentBlue px-1.5 py-0.5 rounded border border-accentBlue/30">
+                  {isOrg && (
+                    <span className="text-[10px] bg-accentBlue/20 text-accentBlue px-1.5 py-0.5 rounded border border-accentBlue/30 font-bold">
                       ORG
                     </span>
                   )}
@@ -137,8 +142,9 @@ const Navbar = () => {
               <button
                 key={link.name}
                 onClick={() => handleNavClick(link.path)}
-                className={`text-left py-2 text-base font-medium ${isActive(link.path) ? 'text-accentBlue' : 'text-mutedGray'
-                  }`}
+                className={`text-left py-2 text-base font-medium ${
+                  isActive(link.path) ? 'text-accentBlue' : 'text-mutedGray'
+                }`}
               >
                 {link.name}
               </button>
@@ -147,14 +153,13 @@ const Navbar = () => {
 
           <hr className="border-white/10" />
 
-          {/* Mobile Auth actions */}
           <div className="pt-2">
             {currentUser ? (
               <div className="space-y-3">
                 <div className="flex items-center space-x-2 py-2">
                   <User className="w-5 h-5 text-purpleGlow" />
                   <span className="text-base text-white">{currentUser.username}</span>
-                  {currentUser.role === 'organization' && (
+                  {isOrg && (
                     <span className="text-[10px] bg-accentBlue/20 text-accentBlue px-1.5 py-0.5 rounded border border-accentBlue/30">
                       ORG
                     </span>

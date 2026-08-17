@@ -9,13 +9,14 @@ import {
   Mail, 
   User, 
   CheckCircle2, 
-  ShieldAlert,
-  Clock,
-  BarChart2,
-  Copy,
-  CheckCheck,
-  Link2,
-  FileText
+  ShieldAlert, 
+  FileSpreadsheet, 
+  Clock, 
+  BarChart2, 
+  Copy, 
+  CheckCheck, 
+  Link2, 
+  FileText 
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 
@@ -29,13 +30,13 @@ const OrgPortal = () => {
   const [copiedTestId, setCopiedTestId] = useState(null);
 
   useEffect(() => {
-    if (!currentUser) return;
-    const query = new URLSearchParams({
-      createdBy: currentUser.id || '',
+    if (!currentUser?.id) return;
+    const queryParams = new URLSearchParams({
+      createdBy: currentUser.id,
       username: currentUser.username || '',
       email: currentUser.email || ''
     }).toString();
-    fetch(`${apiBaseUrl}/api/tests?${query}`)
+    fetch(`${apiBaseUrl}/api/tests?${queryParams}`)
       .then(r => r.ok ? r.json() : [])
       .then(data => setMyTests(Array.isArray(data) ? data : []))
       .catch(() => {});
@@ -108,6 +109,7 @@ const OrgPortal = () => {
 
   return (
     <div className="space-y-8 animate-fadeIn">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/5">
         <div>
           <h1 className="text-2xl md:text-3xl font-extrabold text-white">Organization Console</h1>
@@ -124,6 +126,7 @@ const OrgPortal = () => {
         </button>
       </div>
 
+      {/* My Tests Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-lg font-bold text-white flex items-center gap-2">
@@ -136,7 +139,7 @@ const OrgPortal = () => {
             className="inline-flex items-center space-x-1 px-3 py-1.5 rounded-lg bg-accentBlue/10 border border-accentBlue/30 text-accentBlue text-xs font-semibold hover:bg-accentBlue/25 transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>Upload &amp; Create</span>
+            <span>Generate New CBT</span>
           </button>
         </div>
 
@@ -230,37 +233,39 @@ const OrgPortal = () => {
                       required
                       value={studentEmail}
                       onChange={(e) => setStudentEmail(e.target.value)}
-                      placeholder="jane@ipu.ac.in"
+                      placeholder="jane@university.edu"
                       className="w-full pl-9 pr-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-accentBlue focus:border-accentBlue"
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex space-x-2">
                   <button
                     type="submit"
-                    className="flex-1 py-2 rounded-lg bg-accentBlue text-white text-xs font-semibold hover:bg-accentBlue/80 transition-colors"
+                    className="flex-1 py-2 px-4 rounded-lg bg-gradient-to-r from-accentBlue to-purpleGlow text-white text-xs font-semibold hover:scale-105 active:scale-95 transition-all shadow-glowBlue flex items-center justify-center space-x-1.5"
                   >
-                    Save Student
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Save</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowStudentForm(false)}
-                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 hover:bg-white/10"
+                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-mutedGray hover:text-white transition-colors"
                   >
                     Cancel
                   </button>
                 </div>
               </form>
               {studentSuccess && (
-                <div className="mt-3 text-xs text-green-400 font-medium flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" /> {studentSuccess}
+                <div className="mt-3 flex items-center space-x-1.5 text-[11px] text-green-400">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{studentSuccess}</span>
                 </div>
               )}
             </GlassCard>
           )}
 
-          <GlassCard glowColor="purple" className="p-0 overflow-hidden border border-white/5">
+          <GlassCard glowColor="blue" className="p-0 overflow-hidden border border-white/5">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead className="bg-white/[0.02] text-mutedGray uppercase tracking-wider text-[10px] border-b border-white/5">
@@ -274,16 +279,19 @@ const OrgPortal = () => {
                 </thead>
                 <tbody className="divide-y divide-white/5">
                   {students.map((student) => (
-                    <tr key={student.id} className="hover:bg-white/[0.01]">
+                    <tr key={student.id} className="hover:bg-white/[0.01] transition-colors">
                       <td className="py-4 px-5 font-semibold text-white">{student.name}</td>
-                      <td className="py-4 px-5 text-mutedGray font-mono">{student.email}</td>
+                      <td className="py-4 px-5 text-mutedGray font-mono text-[10px]">{student.email}</td>
                       <td className="py-4 px-5 text-center font-bold text-slate-300">{student.testsTaken}</td>
                       <td className="py-4 px-5 text-center">
-                        <span className={`font-bold ${student.avgAccuracy >= 80 ? 'text-green-400' : student.avgAccuracy >= 60 ? 'text-yellow-500' : 'text-slate-400'}`}>
-                          {student.avgAccuracy > 0 ? `${student.avgAccuracy}%` : 'N/A'}
+                        <span className={`font-bold ${
+                          student.avgAccuracy >= 80 ? 'text-green-400' :
+                          student.avgAccuracy >= 60 ? 'text-yellow-400' : 'text-red-400'
+                        }`}>
+                          {student.avgAccuracy}%
                         </span>
                       </td>
-                      <td className="py-4 px-5 text-mutedGray font-mono">{student.lastActive}</td>
+                      <td className="py-4 px-5 text-mutedGray font-mono text-[10px]">{student.lastActive}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -308,94 +316,95 @@ const OrgPortal = () => {
           </div>
 
           {showScheduleForm && (
-            <GlassCard glowColor="cyan" className="p-5 animate-slideIn space-y-4">
-              <form onSubmit={handleScheduleExam} className="space-y-4">
-                <div className="space-y-1.5">
+            <GlassCard glowColor="cyan" className="p-5 animate-slideIn">
+              <form onSubmit={handleScheduleExam} className="space-y-3">
+                <div className="space-y-1">
                   <label className="text-[10px] font-semibold text-slate-300">Exam Title</label>
                   <input
                     type="text"
                     required
                     value={examTitle}
                     onChange={(e) => setExamTitle(e.target.value)}
-                    placeholder="E.g. Chemistry Unit 3 Mid-Term"
-                    className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyanAccent focus:border-cyanAccent"
+                    placeholder="Mid-Term Assessment"
+                    className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyanAccent"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-semibold text-slate-300">Scheduled Date</label>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-slate-300">Date</label>
                     <input
                       type="date"
                       required
                       value={examDate}
                       onChange={(e) => setExamDate(e.target.value)}
-                      className="w-full px-3.5 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyanAccent"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyanAccent"
                     />
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-semibold text-slate-300">Start Time</label>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-semibold text-slate-300">Time</label>
                     <input
-                      type="text"
+                      type="time"
                       required
                       value={examTime}
                       onChange={(e) => setExamTime(e.target.value)}
-                      placeholder="10:00 AM"
-                      className="w-full px-3.5 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyanAccent"
+                      className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-xs text-white focus:outline-none focus:ring-1 focus:ring-cyanAccent"
                     />
                   </div>
                 </div>
 
-                <div className="flex gap-2 pt-2">
+                <div className="flex space-x-2 pt-2">
                   <button
                     type="submit"
-                    className="flex-1 py-2 rounded-lg bg-cyanAccent text-white text-xs font-semibold hover:bg-cyanAccent/80 transition-colors"
+                    className="flex-1 py-2 px-4 rounded-lg bg-gradient-to-r from-cyanAccent to-accentBlue text-white text-xs font-semibold hover:scale-105 active:scale-95 transition-all shadow-glowCyan flex items-center justify-center space-x-1.5"
                   >
-                    Confirm Schedule
+                    <Calendar className="w-3.5 h-3.5" />
+                    <span>Publish Schedule</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setShowScheduleForm(false)}
-                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-xs font-semibold text-slate-300 hover:bg-white/10"
+                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-mutedGray hover:text-white transition-colors"
                   >
                     Cancel
                   </button>
                 </div>
               </form>
               {scheduleSuccess && (
-                <div className="text-xs text-green-400 font-medium flex items-center gap-1.5">
-                  <CheckCircle2 className="w-4 h-4" /> {scheduleSuccess}
+                <div className="mt-3 flex items-center space-x-1.5 text-[11px] text-green-400">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>{scheduleSuccess}</span>
                 </div>
               )}
             </GlassCard>
           )}
 
           <div className="space-y-4">
-            {schedules.map((sched) => (
-              <GlassCard key={sched.id} glowColor="cyan" className="p-4 space-y-3">
-                <div className="flex justify-between items-start">
-                  <h4 className="text-xs font-bold text-white leading-tight">{sched.title}</h4>
-                  <span className="text-[9px] bg-red-500/25 border border-red-500/30 text-red-400 px-1.5 py-0.5 rounded font-mono">Exam Lock</span>
+            {schedules.map((schedule) => (
+              <GlassCard key={schedule.id} glowColor="cyan" className="p-5 space-y-4">
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-white">{schedule.title}</h4>
+                    <div className="flex items-center space-x-2 text-[11px] text-mutedGray font-mono">
+                      <span>Date: {schedule.date}</span>
+                      <span>•</span>
+                      <span>Time: {schedule.time} ({schedule.duration})</span>
+                    </div>
+                  </div>
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-red-500/10 border border-red-500/20 text-red-400 flex items-center gap-1">
+                    <ShieldAlert className="w-3 h-3" />
+                    <span>Exam Lock</span>
+                  </span>
                 </div>
-                <div className="text-[10px] text-mutedGray space-y-1 font-mono">
-                  <div>Date: {sched.date}</div>
-                  <div>Time: {sched.time} ({sched.duration})</div>
-                </div>
-                <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-mutedGray font-medium">
-                  <span>Enrolled: {sched.studentsCount} candidates</span>
-                  <span className="text-accentBlue hover:underline cursor-pointer flex items-center gap-0.5"><Clock className="w-3.5 h-3.5" /> Scheduled</span>
+
+                <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-mutedGray">
+                  <span>Enrolled: {schedule.studentsCount} candidates</span>
+                  <span className="text-accentBlue hover:text-cyanAccent transition-colors cursor-pointer font-semibold">
+                    Scheduled
+                  </span>
                 </div>
               </GlassCard>
             ))}
-
-            <GlassCard glowColor="purple" className="p-4 bg-gradient-to-tr from-purpleGlow/5 to-transparent border-purpleGlow/25 flex items-start space-x-3">
-              <ShieldAlert className="w-5 h-5 text-purpleGlow flex-shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <h5 className="text-xs font-bold text-white">Institutional Security Notice</h5>
-                <p className="text-[10px] text-slate-300 leading-normal">
-                  All generated exams are run inside a lock-down timer canvas that tracks browser focus loss. Focus loss triggers will be logged in the result sheets.
-                </p>
-              </div>
-            </GlassCard>
           </div>
         </div>
       </div>
