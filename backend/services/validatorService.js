@@ -130,11 +130,23 @@ export function validateQuestions(questions) {
 }
 
 /**
- * Remove option letter prefixes like "A. ", "B. ", "a) ", "1. " from option strings.
+ * Remove option letter prefixes like "A. ", "B. ", "(A) ", "(1) " from option strings
+ * while strictly protecting decimal numbers (e.g. 1.5, 3.14), negative numbers (-4), and equations.
  */
 function cleanOptionString(str) {
   if (typeof str !== 'string') return '';
-  return str
-    .replace(/^(?:Answer\s*:\s*)?[A-Da-d1-4][\.\)]\s*/i, '') // strip "A. ", "Answer: B", "a) "
-    .trim();
+  let cleaned = str.trim();
+
+  // Strip leading "Answer: " or "Ans: "
+  cleaned = cleaned.replace(/^(?:Answer|Ans)\s*:\s*/i, '');
+
+  // Strip "(A)", "(B)", "(C)", "(D)", "(1)", "(2)", "(3)", "(4)"
+  cleaned = cleaned.replace(/^\(([A-Da-d1-4])\)\s*/, '');
+
+  // Strip "A. ", "B. ", "C. ", "D. ", "a) ", "b) " (strictly requiring a letter OR a number followed by closing parenthesis or whitespace that is NOT a decimal digit)
+  cleaned = cleaned.replace(/^[A-Da-d][\.\)]\s+/, '');
+  cleaned = cleaned.replace(/^[1-4]\)\s+/, ''); // only "1) ", not "1.5"
+  cleaned = cleaned.replace(/^[1-4]\.\s+(?=[^\d]|$)/, ''); // only "1. Text", not "1.5"
+
+  return cleaned.trim();
 }

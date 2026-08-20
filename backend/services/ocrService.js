@@ -3,8 +3,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  * High-performance text extraction engine.
  * Supports:
- *   1. Python FastAPI OCR Microservice (PaddleOCR + PyMuPDF) if online
- *   2. Native Node.js PDFParse engine (Zero-dependency cloud PDF processing)
+ *   1. Ultra-fast local digital PDF extraction (~5ms) for text PDFs
+ *   2. Python FastAPI OCR Microservice (PaddleOCR + PyMuPDF) for scanned PDFs and images
  */
 
 import { createRequire } from 'node:module';
@@ -22,8 +22,8 @@ try {
 }
 
 // Base URL of the FastAPI OCR microservice (from environment)
-const OCR_BASE_URL = process.env.PYTHON_OCR_URL || 'http://localhost:8000';
-const OCR_TIMEOUT_MS = 60_000; // 15 seconds fast timeout before fallback
+const OCR_BASE_URL = process.env.PYTHON_OCR_URL || 'http://127.0.0.1:8000';
+const OCR_TIMEOUT_MS = 60_000;
 
 /**
  * Send a file buffer to the OCR service or fallback to native PDF parsing.
@@ -37,48 +37,59 @@ export async function extractText(fileBuffer, mimetype, originalname) {
   const lower = (originalname || '').toLowerCase();
   const isPdf = mimetype === 'application/pdf' || lower.endsWith('.pdf');
 
-  // Attempt 1: Fast Python OCR Microservice (if active)
-  try {
-    const endpoint = isPdf ? '/ocr/pdf' : '/ocr/image';
-    const form = new FormData();
-    form.append('file', fileBuffer, {
-      filename: originalname,
-      contentType: mimetype,
-    });
+  // Step 1: For digital PDFs, attempt instantaneous local extraction first (~5ms)
+  if (isPdf && PDFParse) {
+    try {
+      const parser = new PDFParse(new Uint8Array(fileBuffer));
+      await parser.load();
+      const textResult = await parser.getText();
+      const extracted = typeof textResult === 'string'
+        ? textResult
+        : (textResult?.text || textResult?.pages?.map(p => p.text).join('\n') || '');
 
-    const response = await axios.post(`${OCR_BASE_URL}${endpoint}`, form, {
-      headers: form.getHeaders(),
-      timeout: OCR_TIMEOUT_MS,
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-    });
-
-    if (response.data?.text && typeof response.data.text === 'string' && response.data.text.trim().length >= 20) {
-      console.log(`[OCR] Extracted ${response.data.text.length} chars via Python OCR service.`);
-      return response.data.text;
+      if (extracted && extracted.trim().length >= 80) {
+        console.log(`[PDF] Fast native extraction complete: ${extracted.length} characters.`);
+        return extracted;
+      }
+    } catch (_err) {
+      // Fall through to Python OCR microservice
     }
-  } catch (_err) {
-    console.log(`[OCR] Python microservice request failed at ${OCR_BASE_URL}: `);
   }
 
-  // Attempt 2: Native PDF parsing for PDF files
-  if (isPdf) {
-    if (PDFParse) {
-      try {
-        const parser = new PDFParse(new Uint8Array(fileBuffer));
-        await parser.load();
-        const textResult = await parser.getText();
-        const extracted = typeof textResult === 'string' ? textResult : (textResult?.text || textResult?.pages?.map(p => p.text).join('\n') || '');
-        if (extracted && extracted.trim().length >= 20) {
-          console.log(`[PDF] Extracted ${extracted.length} characters natively via PDFParse.`);
-          return extracted;
-        }
-      } catch (pdfErr) {
-        console.log('[PDF] PDFParse failed, trying raw text stream fallback:', pdfErr.message);
-      }
-    }
+  // Step 2: Python OCR Microservice (PaddleOCR for images and scanned PDFs)
+  const candidateUrls = [
+    OCR_BASE_URL,
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+  ];
 
-    // Attempt 3: Raw PDF text stream fallback
+  for (const baseUrl of [...new Set(candidateUrls)]) {
+    try {
+      const endpoint = isPdf ? '/ocr/pdf' : '/ocr/image';
+      const form = new FormData();
+      form.append('file', fileBuffer, {
+        filename: originalname,
+        contentType: mimetype,
+      });
+
+      const response = await axios.post(`${baseUrl}${endpoint}`, form, {
+        headers: form.getHeaders(),
+        timeout: OCR_TIMEOUT_MS,
+        maxContentLength: Infinity,
+        maxBodyLength: Infinity,
+      });
+
+      if (response.data?.text && typeof response.data.text === 'string' && response.data.text.trim().length >= 10) {
+        console.log(`[OCR] Extracted ${response.data.text.length} chars via Python OCR service at ${baseUrl}.`);
+        return response.data.text;
+      }
+    } catch (err) {
+      // Continue to next candidate URL
+    }
+  }
+
+  // Step 3: Raw PDF text stream fallback for PDFs if OCR service was busy
+  if (isPdf) {
     const rawText = extractRawPdfText(fileBuffer);
     if (rawText && rawText.length >= 20) {
       console.log(`[PDF] Extracted ${rawText.length} characters via raw stream fallback.`);
@@ -86,11 +97,10 @@ export async function extractText(fileBuffer, mimetype, originalname) {
     }
   }
 
-  // Error handling for unsupported or empty image files without active OCR
   if (!isPdf) {
     throw new Error(
       `Image OCR microservice is currently offline at ${OCR_BASE_URL}. ` +
-      'To process scanned image files (PNG/JPG), start the Python OCR service (cd backend/python && uvicorn main:app --port 8000) or upload PDF documents directly.'
+      'To process scanned image files (PNG/JPG), ensure the Python OCR service is running on port 8000.'
     );
   }
 

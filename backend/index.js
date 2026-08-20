@@ -54,7 +54,6 @@ app.use(
 if (process.env.NODE_ENV !== "production") {
   try {
     dns.setDefaultResultOrder("ipv4first");
-    dns.setServers(["8.8.8.8", "8.8.4.4", "1.1.1.1"]);
   } catch (_e) {}
 }
 
