@@ -1,796 +1,315 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { motion } from 'framer-motion';
-import {
-  FileText,
-  Cpu,
-  BarChart3,
-  Users,
-  Trophy,
-  Clock,
-  ArrowRight,
-  Play,
-  CheckCircle2,
-  Sparkles,
-  Mail,
-  MapPin,
-  Phone,
-  Send,
-  Building
-} from 'lucide-react';
-import GlassCard from '../components/GlassCard';
+import { ArrowRight, CheckCircle2, Sparkles, UploadCloud, Cpu, Trophy, BarChart3, ShieldCheck } from 'lucide-react';
+
+const CourseCard = ({ title, description, tone, className = "" }) => (
+  <article className={`absolute w-60 rounded-[1.8rem] border border-white/25 p-5 text-slate-950 shadow-2xl transition-transform hover:scale-105 duration-300 ${tone} ${className}`}>
+    <span className="grid size-9 place-items-center rounded-full bg-white/70 text-lg font-bold">⌘</span>
+    <h3 className="mt-5 text-xl font-bold leading-5 tracking-tight">{title}</h3>
+    <p className="mt-4 text-xs font-medium leading-5 opacity-75">{description}</p>
+    <Link to="/upload" className="mt-5 inline-block rounded-full bg-slate-950 px-4 py-2 text-xs font-semibold text-white hover:bg-slate-800 transition-colors">
+      Explore
+    </Link>
+  </article>
+);
+
+const steps = [
+  ["01", "Upload your material", "Drop in a PDF, image, or question bank. CBTify keeps every source neatly organized."],
+  ["02", "AI extracts questions", "Our AI reads the content with OCR, identifies questions, and structures them in seconds."],
+  ["03", "Build your CBT exam", "Choose questions, set duration and pass rules, and create a focused online assessment."],
+  ["04", "Students take the test", "Share one secure link. Learners complete their exam in a distraction-free space."],
+  ["05", "See what to improve", "Get instant results, mistake reviews, and rank insights that reveal learning growth."],
+];
+
+const commitments = [
+  ["Clear learning feedback", "Give every learner a useful explanation—not just a score—so they know exactly what to improve next."],
+  ["Confident, secure assessment", "Create focused testing experiences with the controls educators need and the simplicity students expect."],
+  ["Less admin, more teaching", "Turn existing notes and materials into ready-to-use assessments without hours of manual setup."],
+];
 
 const LandingPage = () => {
-  const navigate = useNavigate();
   const { currentUser } = useApp();
-  const [activeTab, setActiveTab] = useState('org');
-  const [demoStep, setDemoStep] = useState(0);
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setDemoStep((prev) => (prev + 1) % 4);
-    }, 4000);
-    return () => clearInterval(timer);
-  }, []);
-
-  const steps = [
-    { title: 'Upload PDF/Image', desc: 'Drag-and-drop notes, question files, or page screenshots.' },
-    { title: 'AI Question Extraction', desc: 'CBTify.ai scans text, formulas, drawings and isolates Q&As.' },
-    { title: 'Generate CBT Exam', desc: 'Converts questions into standard MCQ online assessments.' },
-    { title: 'Attempt CBT Test', desc: 'Students attempt the test inside a secure timer-driven browser.' },
-    { title: 'Get Analytics & Insights', desc: 'Get subject breakdown, mistakes list, and rank mapping.' }
-  ];
-
-  const features = [
-    { title: '📄 PDF to CBT', desc: 'Transform multi-page documents and textbook PDFs into interactive tests instantly.', color: 'blue' },
-    { title: '🖼️ Image to CBT', desc: 'Take a snapshot of any written question paper or whiteboard note and convert it directly.', color: 'purple' },
-    { title: '🤖 AI Question Detection', desc: 'Engine parses complex academic texts, separating questions, options, and explanations.', color: 'cyan' },
-    { title: '📊 Detailed Analytics', desc: 'Track averages, accuracy ratios, speed coefficients, and percentile distributions.', color: 'green' },
-    { title: '🎯 Mistake Tracking', desc: 'Automatically flags incorrect answers and compiles them in a centralized error bank.', color: 'purple' },
-    { title: '⚡ Instant Generation', desc: 'Scans, compiles, structures, and releases tests online in under 30 seconds.', color: 'blue' },
-    { title: '🏫 Organization Portal', desc: 'Allows schools and coaches to create secure exams, schedule dates, and monitor rosters.', color: 'cyan' },
-    { title: '👨‍🎓 Student Dashboard', desc: 'Personal work desk loaded with calendar heatmaps, recommendations, and test history.', color: 'green' },
-    { title: '📈 Progress Reports', desc: 'Send automated PDF/CSV reports to parents, instructors, or school administrations.', color: 'blue' },
-    { title: '🏆 Leaderboards', desc: 'Gamify studying with cohort rankings, score badges, and topic-wise expert statuses.', color: 'purple' }
-  ];
-
-  const containerVariants = {
-    hidden: {},
-    visible: { transition: { staggerChildren: 0.15 } }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { type: 'spring', damping: 20, stiffness: 100 } }
-  };
-
-  const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: '', email: '', message: '' });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const handleContactSubmit = (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
+    if (!contactForm.name || !contactForm.email) return;
+    setSubmitting(true);
     setTimeout(() => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setTimeout(() => setSubmitSuccess(false), 3000);
-    }, 1500);
+      setSubmitting(false);
+      setSubmitted(true);
+      setContactForm({ name: '', email: '', message: '' });
+      setTimeout(() => setSubmitted(false), 4000);
+    }, 1000);
   };
 
   return (
-    <div className="relative min-h-screen grid-bg overflow-x-hidden">
-      <div className="glow-orb-blue top-10 left-10 animate-pulse-slow" />
-      <div className="glow-orb-purple top-1/3 right-10" />
-      <div className="glow-orb-cyan bottom-10 left-1/4" />
-
+    <main id="home" className="min-h-screen overflow-hidden bg-[#101010] text-[#f7f7f4] selection:bg-lime-300 selection:text-black">
       {/* HERO SECTION */}
-      <section className="relative pt-24 pb-28 md:pt-32 md:pb-40 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      <section className="relative mx-auto min-h-[calc(100vh-5rem)] max-w-[1600px] px-6 pb-20 pt-28 sm:px-12 lg:px-20 lg:pt-36">
+        {/* Subtle background radial glow */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[45%] bg-[radial-gradient(ellipse_at_50%_100%,rgba(190,242,100,0.12),transparent_60%)]" />
 
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-accentBlue/10 border border-accentBlue/30 text-accentBlue text-xs font-semibold mb-6 shadow-glowBlue"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>Interactive Prototyping Active</span>
-          </motion.div>
+        <div className="relative z-10 grid gap-10 lg:grid-cols-[1.2fr_0.8fr]">
+          <h1 className="max-w-4xl text-[clamp(4rem,9vw,9.5rem)] font-medium leading-[0.84] tracking-[-0.075em] text-[#f7f7f4]">
+            Learn.<br />Assess.<br /><span className="text-lime-300">Excel.</span>
+          </h1>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 100, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold tracking-tight max-w-5xl mx-auto leading-[1.08] mb-6"
-          >
-            Turn Any PDF or Image into an{' '}
-            <span className="relative inline-block text-transparent bg-clip-text bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent">
-              Interactive CBT Exam
-              <span className="absolute bottom-1 left-0 w-full h-[3px] bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent opacity-70 blur-[1px]"></span>
-            </span>{' '}
-            in Seconds
-          </motion.h1>
+          <div className="flex max-w-xl flex-col justify-center lg:pt-6">
+            <p className="max-w-md text-lg leading-8 text-zinc-400 sm:text-xl font-normal">
+              Convert notes, textbooks, and images into interactive Computer-Based Tests with AI in seconds. Guide every learner with precision analytics.
+            </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg sm:text-xl text-mutedGray max-w-3xl mx-auto mb-10 leading-relaxed"
-          >
-            Upload lecture notes, question papers, screenshots, or PDFs and instantly generate AI-powered CBT tests with detailed analytics and performance tracking.
-          </motion.p>
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                to={currentUser ? "/upload" : "/register"}
+                className="rounded-full bg-lime-300 px-8 py-4 text-base font-bold text-zinc-950 transition-all hover:-translate-y-1 hover:bg-lime-200 shadow-glowLime"
+              >
+                Start now
+              </Link>
+              <a
+                href="#how-it-works"
+                className="rounded-full border border-white/15 px-6 py-4 text-sm font-semibold text-zinc-200 transition-colors hover:border-white/35 hover:bg-white/5"
+              >
+                See how it works
+              </a>
+            </div>
 
-          {currentUser && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="max-w-md mx-auto p-3.5 mb-6 rounded-2xl bg-white/5 border border-white/10 text-xs text-slate-200"
-            >
-              👋 Welcome back, <strong className="text-accentBlue font-bold">{currentUser.username}</strong>! Select a workspace pathway below to open your pages.
-            </motion.div>
-          )}
+            {/* Micro Feature Badges */}
+            <div className="mt-10 flex flex-wrap items-center gap-6 pt-6 border-t border-white/10 text-xs text-zinc-400">
+              <span className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-lime-300" />
+                PaddleOCR & PDF Extraction
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-lime-300" />
+                Qwen AI Question Engine
+              </span>
+              <span className="flex items-center gap-2">
+                <span className="size-2 rounded-full bg-lime-300" />
+                Timed Exam
+              </span>
+            </div>
+          </div>
+        </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-20 max-w-3xl mx-auto"
-          >
-            {currentUser ? (
-              <>
-                <Link
-                  to="/dashboard"
-                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-gradient-to-r from-accentBlue to-purpleGlow text-white font-semibold shadow-glowBlue hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-2 text-sm"
-                >
-                  <span>Student Dashboard</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <Link
-                  to="/upload"
-                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center justify-center space-x-2 text-sm"
-                >
-                  <span>Upload PDF/Image</span>
-                </Link>
-                <Link
-                  to="/analytics"
-                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-white font-semibold transition-all flex items-center justify-center space-x-2 text-sm"
-                >
-                  <span>Analytics Page</span>
-                </Link>
-                {currentUser.role === 'organization' && (
-                  <Link
-                    to="/organization"
-                    className="w-full sm:w-auto px-6 py-4 rounded-xl bg-purpleGlow/20 border border-purpleGlow/30 hover:bg-purpleGlow/35 text-purpleGlow font-semibold transition-all flex items-center justify-center space-x-2 text-sm"
-                  >
-                    <span>Organization Portal</span>
-                  </Link>
-                )}
-                <a
-                  href="https://youtu.be/8j4DMaJDMuI"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-6 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-semibold transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer"
-                >
-                  <Play className="w-4 h-4 text-cyanAccent fill-cyanAccent" />
-                  <span>Watch Demo</span>
-                </a>
-              </>
-            ) : (
-              <>
-                <Link
-                  to="/register"
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent text-white font-medium shadow-glowBlue hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-2 text-sm"
-                >
-                  <span>Start Free</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-                <a
-                  href="https://youtu.be/8j4DMaJDMuI"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white font-medium transition-all flex items-center justify-center space-x-2 text-sm cursor-pointer"
-                >
-                  <Play className="w-4 h-4 text-cyanAccent fill-cyanAccent" />
-                  <span>Watch Demo</span>
-                </a>
-              </>
-            )}
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            transition={{ type: 'spring', damping: 20, stiffness: 80, delay: 0.4 }}
-            className="relative max-w-5xl mx-auto rounded-24px p-1.5 bg-gradient-to-b from-white/15 to-transparent shadow-2xl border border-white/10 backdrop-blur-md overflow-hidden"
-          >
-            <div className="rounded-3xl bg-darkBg/90 overflow-hidden border border-white/5 relative min-h-[400px] md:min-h-[500px] flex flex-col md:flex-row">
-              <div className="w-full md:w-56 border-b md:border-b-0 md:border-r border-white/5 bg-white/[0.02] p-4 flex flex-row md:flex-col items-center md:items-start justify-between md:justify-start md:space-y-4">
-                <div className="flex items-center space-x-2 mb-0 md:mb-6">
-                  <div className="w-7 h-7 rounded-lg bg-accentBlue flex items-center justify-center shadow-glowBlue"><Cpu className="w-4 h-4 text-white" /></div>
-                  <span className="font-bold text-sm text-white">CBTify Engine</span>
-                </div>
-                <div className="hidden md:flex flex-col space-y-1.5 w-full">
-                  <div className={`flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold ${demoStep === 0 ? 'bg-accentBlue/20 text-accentBlue border-l-2 border-accentBlue' : 'text-mutedGray'}`}><FileText className="w-3.5 h-3.5" /><span>1. Source File</span></div>
-                  <div className={`flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold ${demoStep === 1 ? 'bg-purpleGlow/20 text-purpleGlow border-l-2 border-purpleGlow' : 'text-mutedGray'}`}><Cpu className="w-3.5 h-3.5" /><span>2. AI Core</span></div>
-                  <div className={`flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold ${demoStep === 2 ? 'bg-cyanAccent/20 text-cyanAccent border-l-2 border-cyanAccent' : 'text-mutedGray'}`}><Clock className="w-3.5 h-3.5" /><span>3. CBT Exam</span></div>
-                  <div className={`flex items-center space-x-2.5 px-3 py-2 rounded-lg text-xs font-semibold ${demoStep === 3 ? 'bg-green-500/20 text-green-400 border-l-2 border-green-400' : 'text-mutedGray'}`}><BarChart3 className="w-3.5 h-3.5" /><span>4. Analytics</span></div>
-                </div>
-                <div className="text-xs bg-white/5 text-slate-300 px-2.5 py-1 rounded md:mt-auto border border-white/10">Active Simulation</div>
-              </div>
-
-              <div className="flex-1 p-6 md:p-10 flex flex-col justify-center bg-radial-gradient">
-                {demoStep === 0 && (
-                  <div className="flex flex-col items-center justify-center text-center space-y-6 animate-fadeIn">
-                    <div className="w-20 h-20 rounded-2xl bg-accentBlue/10 border border-accentBlue/30 flex items-center justify-center animate-bounce">
-                      <FileText className="w-10 h-10 text-accentBlue" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-white">Extracting from "chemistry_unit_4.pdf"</h4>
-                      <p className="text-xs text-mutedGray mt-1">Uploaded successfully. Size: 4.8MB</p>
-                    </div>
-                    <div className="w-full max-w-sm bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
-                      <div className="bg-accentBlue h-full rounded-full animate-[loading_4s_infinite]" style={{ width: '85%' }}></div>
-                    </div>
-                    <span className="text-xs text-accentBlue font-medium">Scanning layout coordinates...</span>
-                  </div>
-                )}
-
-                {demoStep === 1 && (
-                  <div className="flex flex-col items-center justify-center space-y-6 text-center animate-fadeIn">
-                    <div className="w-20 h-20 rounded-full bg-purpleGlow/10 border border-purpleGlow/30 flex items-center justify-center relative">
-                      <div className="absolute inset-0 rounded-full border-t-2 border-purpleGlow animate-spin"></div>
-                      <Cpu className="w-8 h-8 text-purpleGlow" />
-                    </div>
-                    <div>
-                      <h4 className="text-lg font-semibold text-white">AI Engine Parsing Content</h4>
-                      <p className="text-xs text-mutedGray mt-1">OCR identifying text boxes, math expressions, and drawings.</p>
-                    </div>
-                    <div className="flex flex-col items-center space-y-1.5 text-xs text-purpleGlow/90 font-mono">
-                      <span>✓ Identified: 15 multiple choice structures</span>
-                      <span>✓ Solved correct options via AI Reasoning</span>
-                      <span>⚙ Generating student answer cards...</span>
-                    </div>
-                  </div>
-                )}
-
-                {demoStep === 2 && (
-                  <div className="text-left space-y-5 animate-fadeIn max-w-xl mx-auto w-full">
-                    <div className="flex justify-between items-center pb-3 border-b border-white/10 text-xs">
-                      <span className="font-semibold text-cyanAccent">QUESTION 3 OF 15</span>
-                      <span className="text-slate-300 font-mono bg-white/5 px-2 py-0.5 rounded border border-white/10 flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-cyanAccent" /> 12:45 remaining</span>
-                    </div>
-                    <h4 className="text-base font-semibold text-white">
-                      Which of the following compounds is classified as a strong Arrhenius acid in aqueous solutions?
-                    </h4>
-                    <div className="space-y-2.5">
-                      {['CH3COOH (Acetic Acid)', 'HCl (Hydrochloric Acid)', 'NH3 (Ammonia)', 'NaOH (Sodium Hydroxide)'].map((opt, i) => (
-                        <div
-                          key={opt}
-                          className={`p-3 rounded-xl border text-xs font-medium transition-all ${i === 1
-                            ? 'bg-cyanAccent/10 border-cyanAccent text-cyanAccent'
-                            : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
-                            }`}
-                        >
-                          <span className="inline-block w-5 h-5 rounded-full bg-white/5 border border-white/10 text-center leading-5 mr-3 font-semibold">{String.fromCharCode(65 + i)}</span>
-                          {opt}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {demoStep === 3 && (
-                  <div className="text-left space-y-5 animate-fadeIn max-w-xl mx-auto w-full">
-                    <h4 className="text-lg font-semibold text-white flex items-center justify-between">
-                      <span>Attempt Complete!</span>
-                      <span className="text-xs bg-green-500/20 text-green-400 border border-green-500/30 px-2 py-0.5 rounded">Saved to history</span>
-                    </h4>
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
-                        <span className="block text-[10px] text-mutedGray">ACCURACY</span>
-                        <span className="text-2xl font-bold text-green-400">93%</span>
-                      </div>
-                      <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
-                        <span className="block text-[10px] text-mutedGray">TIME SPENT</span>
-                        <span className="text-2xl font-bold text-purpleGlow">4.2m</span>
-                      </div>
-                      <div className="p-3 bg-white/5 border border-white/10 rounded-2xl">
-                        <span className="block text-[10px] text-mutedGray">IMPROVEMENT</span>
-                        <span className="text-2xl font-bold text-accentBlue">+14%</span>
-                      </div>
-                    </div>
-                    <div className="p-4 bg-white/5 border border-white/10 rounded-2xl h-36 flex items-end">
-                      <svg className="w-full h-full" viewBox="0 0 300 100">
-                        <path
-                          d="M10,80 Q50,70 90,60 T170,40 T250,20 T290,10"
-                          fill="none"
-                          stroke="url(#blue-grad)"
-                          strokeWidth="3"
-                          strokeLinecap="round"
-                        />
-                        <circle cx="290" cy="10" r="4" fill="#3B82F6" className="animate-ping" />
-                        <circle cx="290" cy="10" r="3" fill="#3B82F6" />
-                        <defs>
-                          <linearGradient id="blue-grad" x1="0" y1="0" x2="1" y2="0">
-                            <stop offset="0%" stopColor="#8B5CF6" />
-                            <stop offset="50%" stopColor="#3B82F6" />
-                            <stop offset="100%" stopColor="#06B6D4" />
-                          </linearGradient>
-                        </defs>
-                      </svg>
-                    </div>
-                  </div>
-                )}
-
+        {/* Floating cards & Glowing concentric radar orb */}
+        <div className="relative z-10 mt-14 h-[410px] sm:mt-10 lg:h-[430px]">
+          {/* Concentric Glowing Radar Orb */}
+          <div className="absolute left-1/2 top-0 grid size-72 -translate-x-1/2 place-items-center rounded-full border border-lime-300/30 bg-[radial-gradient(circle_at_50%_45%,rgba(190,242,100,0.35),rgba(30,33,22,0.75)_35%,rgba(17,17,17,0)_70%)] shadow-[0_0_100px_rgba(190,242,100,0.12)] sm:size-80 lg:left-[59%] lg:size-96">
+            <div className="grid size-[72%] place-items-center rounded-full border border-white/10 bg-zinc-900/70 shadow-[inset_0_0_45px_rgba(190,242,100,0.15)]">
+              <div className="grid size-[55%] place-items-center rounded-full border border-lime-300/50 bg-black/50">
+                <span className="size-5 rounded-full bg-lime-300 shadow-[0_0_30px_12px_rgba(190,242,100,0.55)]" />
               </div>
             </div>
-          </motion.div>
+          </div>
+
+          {/* Floating Course/Feature Cards */}
+          <CourseCard
+            title="Exam Essentials"
+            description="Build clear, thoughtful assessments designed around your learning goals."
+            tone="bg-rose-300"
+            className="-left-6 top-36 -rotate-[14deg] sm:left-2 lg:left-0"
+          />
+          <CourseCard
+            title="Learning Insights"
+            description="Understand student performance at a glance and help every learner move forward."
+            tone="bg-cyan-300"
+            className="left-28 top-44 rotate-[-2deg] sm:left-56 lg:left-[17%]"
+          />
+          <CourseCard
+            title="Strategic Practice"
+            description="Shape focused study plans using AI-powered error tagging that actually makes sense."
+            tone="bg-zinc-100"
+            className="left-[50%] top-52 rotate-[11deg] sm:left-[53%] lg:left-[36%]"
+          />
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section id="how-it-works" className="py-24 border-t border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">How It Works</h2>
-            <p className="text-base text-mutedGray max-w-2xl mx-auto">
-              From raw documents to fully graded computer-based assessments in five easy stages.
-            </p>
-          </motion.div>
+      {/* HOW IT WORKS / THE PROCESS */}
+      <section id="how-it-works" className="relative border-y border-white/5 bg-[#0c0c0c] px-6 py-24 sm:px-12 lg:px-20 lg:py-32">
+        <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
 
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            className="grid grid-cols-1 md:grid-cols-5 gap-6"
-          >
-            {steps.map((step, idx) => (
-              <motion.div key={step.title} variants={itemVariants}>
-                <GlassCard glowColor={idx % 2 === 0 ? 'blue' : 'purple'} className="flex flex-col relative h-full justify-between">
-                  <div>
-                    <span className="absolute top-4 right-4 text-4xl font-bold bg-gradient-to-br from-white/10 to-transparent bg-clip-text text-transparent">{`0${idx + 1}`}</span>
-                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-accentBlue font-bold text-sm mb-6 mt-2">
-                      {idx + 1}
-                    </div>
-                    <h3 className="text-base font-bold text-white mb-2">{step.title}</h3>
-                    <p className="text-xs text-mutedGray leading-relaxed">{step.desc}</p>
-                  </div>
-                </GlassCard>
-              </motion.div>
+        <div className="relative mx-auto max-w-[1600px]">
+          <div className="grid items-end gap-8 lg:grid-cols-[1fr_0.8fr]">
+            <div>
+              <p className="mb-5 text-xs font-bold uppercase tracking-[0.25em] text-lime-300">The process</p>
+              <h2 className="max-w-3xl text-5xl font-medium leading-[0.94] tracking-[-0.06em] text-[#f7f7f4] sm:text-7xl">
+                Five small steps.<br />One better learning loop.
+              </h2>
+            </div>
+            <p className="max-w-md text-lg leading-8 text-zinc-400 lg:justify-self-end">
+              A clear path from raw documents to actionable assessment and rich feedback—built to save educators hours of prep.
+            </p>
+          </div>
+
+          <div className="mt-20 grid border-t border-white/15 sm:grid-cols-2 xl:grid-cols-5">
+            {steps.map(([number, title, description]) => (
+              <article key={number} className="group relative min-h-64 border-b border-white/10 px-0 py-8 sm:px-6 xl:border-b-0 xl:border-r xl:px-7 xl:first:pl-0 xl:last:border-r-0 xl:last:pr-0">
+                <span className="absolute -top-1.5 left-0 size-3 rounded-full bg-lime-300 shadow-[0_0_18px_rgba(190,242,100,0.7)] sm:left-6 xl:first:left-0" />
+                <p className="text-xs font-bold tracking-[0.2em] text-zinc-500">{number}</p>
+                <h3 className="mt-12 max-w-48 text-2xl font-medium leading-7 tracking-[-0.045em] text-white transition-colors group-hover:text-lime-300">
+                  {title}
+                </h3>
+                <p className="mt-5 max-w-56 text-sm leading-6 text-zinc-400 font-normal">
+                  {description}
+                </p>
+              </article>
             ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FEATURES GRID */}
-      <section id="features" className="py-24 bg-darkSec/35 relative border-y border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-20"
-          >
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">Futuristic Feature Matrix</h2>
-            <p className="text-base text-mutedGray max-w-2xl mx-auto">
-              Equipped with elite core features to assist both standard learners and institutions.
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: '-100px' }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {features.map((feat) => (
-              <motion.div key={feat.title} variants={itemVariants}>
-                <GlassCard glowColor={feat.color} className="p-6 flex flex-col justify-between group h-full">
-                  <div>
-                    <h3 className="text-lg font-bold text-white mb-3">
-                      <span>{feat.title}</span>
-                    </h3>
-                    <p className="text-xs text-mutedGray leading-relaxed mb-4">{feat.desc}</p>
-                  </div>
-                  <span className="text-[10px] text-accentBlue/80 font-mono tracking-widest uppercase mt-auto">Premium Core</span>
-                </GlassCard>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* TABS SHOWCASE */}
-      <section className="py-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-center mb-12">
-          <div className="flex p-1 rounded-xl bg-white/5 border border-white/10">
-            <button
-              onClick={() => setActiveTab('org')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'org' ? 'bg-gradient-to-r from-accentBlue to-purpleGlow text-white shadow-glowBlue' : 'text-mutedGray hover:text-white'
-                }`}
-            >
-              For Institutions &amp; Schools
-            </button>
-            <button
-              onClick={() => setActiveTab('student')}
-              className={`px-6 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab === 'student' ? 'bg-gradient-to-r from-accentBlue to-purpleGlow text-white shadow-glowBlue' : 'text-mutedGray hover:text-white'
-                }`}
-            >
-              For Private Students
-            </button>
           </div>
-        </div>
 
-        {activeTab === 'org' ? (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center animate-fadeIn">
-            <div className="space-y-6">
-              <h3 className="text-3xl font-extrabold text-white">Automate Assessment Lifecycle</h3>
-              <p className="text-slate-300 leading-relaxed text-sm">
-                Deploy exams securely, roster student groups, track scores dynamically, and compile academic files in a secure layout dashboard. Perfect for Coaching Centers, Universities, and Corporate Training departments.
-              </p>
-              <ul className="space-y-3">
-                {[
-                  'Secure testing configuration preventing screenshot captures',
-                  'Simulated bulk rosters upload for cohort testing',
-                  'Instant exam link generator to share with classes',
-                  'Aggregate school leaderboard rank indices',
-                  'Automatic student mistake audit banks'
-                ].map((item) => (
-                  <li key={item} className="flex items-start text-xs text-slate-300">
-                    <CheckCircle2 className="w-4.5 h-4.5 text-accentBlue mr-2.5 flex-shrink-0 mt-0.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-4">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-accentBlue to-purpleGlow text-white font-medium shadow-glowPurple"
-                >
-                  <span>Register Institution</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            <GlassCard glowColor="purple" className="p-4">
-              <div className="rounded-xl overflow-hidden border border-white/5 bg-slate-950/60 p-4 space-y-4">
-                <div className="flex justify-between items-center text-xs pb-3 border-b border-white/10">
-                  <span className="font-bold text-white flex items-center gap-1.5"><Users className="w-4 h-4 text-purpleGlow" /> IIITK ROSTER</span>
-                  <span className="text-mutedGray">Cohort: CS Prep-2026</span>
-                </div>
-                <div className="space-y-2">
-                  {[
-                    { name: 'Alice Smith', email: 'alice@iiitk.ac.in', score: '92%' },
-                    { name: 'Bob Johnson', email: 'bob@iiitk.ac.in', score: '84%' },
-                    { name: 'Charlie Davis', email: 'charlie@iiitk.ac.in', score: '96%' }
-                  ].map((s) => (
-                    <div key={s.name} className="flex items-center justify-between p-2 rounded bg-white/5 text-xs">
-                      <div>
-                        <div className="font-semibold text-white">{s.name}</div>
-                        <div className="text-[10px] text-mutedGray">{s.email}</div>
-                      </div>
-                      <span className="font-bold text-green-400">{s.score} accuracy</span>
-                    </div>
-                  ))}
-                </div>
-                <div className="text-[10px] text-mutedGray text-center italic">Manage students, schedule mid-terms, and click export.</div>
-              </div>
-            </GlassCard>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center animate-fadeIn">
-            <div className="space-y-6">
-              <h3 className="text-3xl font-extrabold text-white">Study Smarter, Not Harder</h3>
-              <p className="text-slate-300 leading-relaxed text-sm">
-                Stop typing out study questionnaires. Simply upload your class PDF notes or snaps of past homework problems and study with mock interactive exams directly calibrated for you.
-              </p>
-              <ul className="space-y-3">
-                {[
-                  'Convert screenshots directly into mock quizzes',
-                  'Highlight weak concepts and generate remediation quizzes',
-                  'Simulate realistic countdown timer conditions',
-                  'View answers with explainers for incorrect answers',
-                  'Access score logs locally at any time'
-                ].map((item) => (
-                  <li key={item} className="flex items-start text-xs text-slate-300">
-                    <CheckCircle2 className="w-4.5 h-4.5 text-cyanAccent mr-2.5 flex-shrink-0 mt-0.5" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <div className="pt-4">
-                <Link
-                  to="/register"
-                  className="inline-flex items-center space-x-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-accentBlue to-cyanAccent text-white font-medium shadow-glowCyan"
-                >
-                  <span>Create Student Profile</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </div>
-            </div>
-
-            <GlassCard glowColor="cyan" className="p-4">
-              <div className="rounded-xl overflow-hidden border border-white/5 bg-slate-950/60 p-4 space-y-4">
-                <div className="flex justify-between items-center text-xs pb-3 border-b border-white/10">
-                  <span className="font-bold text-white flex items-center gap-1.5"><Trophy className="w-4 h-4 text-cyanAccent" /> INDIVIDUAL PERFORMANCE</span>
-                  <span className="text-cyanAccent font-mono">Rank: #14 in Prep Cohort</span>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-center">
-                    <span className="block text-[9px] text-mutedGray">WEAK TOPIC</span>
-                    <span className="text-xs font-bold text-red-400">Arrhenius Acids</span>
-                  </div>
-                  <div className="p-3 bg-white/5 rounded-xl border border-white/10 text-center">
-                    <span className="block text-[9px] text-mutedGray">AI RECOMMENDATION</span>
-                    <span className="text-xs font-bold text-accentBlue">Review Mechanics Q2</span>
-                  </div>
-                </div>
-                <div className="text-[10px] text-mutedGray text-center italic">Get personalized reminders to retry questions you missed.</div>
-              </div>
-            </GlassCard>
-          </div>
-        )}
-      </section>
-
-      {/* ABOUT US SECTION */}
-      <section id="about" className="py-24 bg-darkSec/20 border-t border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">About CBTify.ai</h2>
-            <p className="text-base text-mutedGray max-w-2xl mx-auto">
-              Bridging the gap between static content and active educational evaluation.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-6"
-            >
-              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Building className="w-6 h-6 text-accentBlue" />
-                Our Educational Vision
-              </h3>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                At CBTify.ai, we believe that learning happens by doing. Traditional assessment cycles are slow, tedious, and often delayed. Our mission is to democratize instant feedback by converting static lecture slides, textbooks, and notes into interactive quiz portals immediately.
-              </p>
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Developed in partnership with academic hubs like the IPU University labs, our technology uses layout-aware neural extraction systems to separate instructional sheets from grading items, saving institutions hundreds of work hours.
-              </p>
-              <div className="grid grid-cols-2 gap-4 pt-2">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <span className="block text-2xl font-bold text-accentBlue">100%</span>
-                  <span className="text-[10px] text-mutedGray uppercase tracking-wider">Automated Conversions</span>
-                </div>
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                  <span className="block text-2xl font-bold text-purpleGlow">&lt; 30s</span>
-                  <span className="text-[10px] text-mutedGray uppercase tracking-wider">Test Processing time</span>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-            >
-              <GlassCard glowColor="purple" className="p-8 space-y-6">
-                <h4 className="text-base font-bold text-white">Our Core Commitments</h4>
-
-                <div className="space-y-4">
-                  {[
-                    { title: 'Explainable AI Answers', desc: 'Every incorrect response triggers a detailed step-by-step mathematical or logical AI-generated explainer.' },
-                    { title: 'Secure Evaluation Canvas', desc: 'Features a focus tracking locker, disabling copy-pastes and logging focus loss indicators for tutors.' },
-                    { title: 'Zero Setup Integration', desc: 'No servers, databases, or local scripts to manage. Runs entirely in high-fidelity browser workspaces.' }
-                  ].map((val) => (
-                    <div key={val.title} className="flex gap-4">
-                      <div className="w-8 h-8 rounded-lg bg-accentBlue/10 border border-accentBlue/20 flex items-center justify-center text-accentBlue flex-shrink-0">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h5 className="text-xs font-bold text-white">{val.title}</h5>
-                        <p className="text-[11px] text-mutedGray mt-0.5 leading-relaxed">{val.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </GlassCard>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* CONTACT US SECTION */}
-      <section id="contact" className="py-24 border-t border-white/5 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-100px' }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white mb-4">Get In Touch</h2>
-            <p className="text-base text-mutedGray max-w-2xl mx-auto">
-              Have questions about secure exam lockers or custom institutional deployments? Message us directly.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="lg:col-span-2 space-y-6"
-            >
-              <GlassCard glowColor="blue" className="p-6 space-y-4">
-                <h4 className="text-sm font-bold text-white uppercase tracking-wider">Contact Information</h4>
-
-                <div className="space-y-4 text-xs text-slate-300">
-                  <div className="flex items-center space-x-3">
-                    <Mail className="w-4.5 h-4.5 text-accentBlue" />
-                    <span>support@cbtify.ai</span>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Phone className="w-4.5 h-4.5 text-purpleGlow" />
-                    <span>+91 11 2430 7330</span>
-                  </div>
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="w-4.5 h-4.5 text-cyanAccent mt-0.5 flex-shrink-0" />
-                    <span className="leading-relaxed">
-                      Ram Nagar,<br />
-                      RIICO Industrial Area, Phase I,<br />
-                      Kota, Rajasthan, 324005, India
-                    </span>
-                  </div>
-                </div>
-              </GlassCard>
-
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/10 text-[11px] text-mutedGray leading-relaxed flex items-start">
-                <Sparkles className="w-5 h-5 text-accentBlue flex-shrink-0 mr-2.5 mt-0.5" />
-                <span>Our administrative and development labs are located inside the Innovation and Incubation Center of IPU University, Delhi, India.</span>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.15 }}
-              className="lg:col-span-3 w-full"
-            >
-              <GlassCard glowColor="purple" className="p-6">
-                {submitSuccess ? (
-                  <div className="text-center py-12 space-y-3 animate-fadeIn">
-                    <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto text-green-400">
-                      <CheckCircle2 className="w-6 h-6" />
-                    </div>
-                    <h4 className="text-sm font-bold text-white">Message Transmitted</h4>
-                    <p className="text-xs text-mutedGray">We will review your inquiry and follow up within 24 hours.</p>
-                  </div>
-                ) : (
-                  <form onSubmit={handleContactSubmit} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-semibold text-slate-300">Name</label>
-                        <input
-                          type="text"
-                          required
-                          value={formData.name}
-                          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                          placeholder="Your name"
-                          className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-accentBlue focus:border-accentBlue"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-semibold text-slate-300">Email Address</label>
-                        <input
-                          type="email"
-                          required
-                          value={formData.email}
-                          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                          placeholder="name@institution.edu"
-                          className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-accentBlue focus:border-accentBlue"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-semibold text-slate-300">Subject</label>
-                      <input
-                        type="text"
-                        required
-                        value={formData.subject}
-                        onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                        placeholder="Deployment query"
-                        className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-accentBlue focus:border-accentBlue"
-                      />
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-semibold text-slate-300">Message</label>
-                      <textarea
-                        required
-                        rows="4"
-                        value={formData.message}
-                        onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                        placeholder="Describe your classroom size or mock trial needs..."
-                        className="w-full px-3.5 py-2.5 bg-white/5 border border-white/10 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-accentBlue focus:border-accentBlue resize-none"
-                      />
-                    </div>
-
-                    <button
-                      type="submit"
-                      disabled={isSubmitting}
-                      className="w-full py-3 rounded-xl bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent text-white text-xs font-semibold hover:scale-102 active:scale-98 disabled:opacity-50 transition-all flex items-center justify-center space-x-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      <span>{isSubmitting ? 'Transmitting inquiry...' : 'Send Message'}</span>
-                    </button>
-                  </form>
-                )}
-              </GlassCard>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA SECTION */}
-      <section className="py-20 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 mb-20 relative z-10">
-        <GlassCard glowColor="blue" className="p-8 md:p-14 text-center space-y-6 relative overflow-hidden border border-white/10">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-accentBlue/20 rounded-full filter blur-3xl"></div>
-
-          <h2 className="text-3xl md:text-4xl font-extrabold text-white">Ready to Transform Any Document into an Exam?</h2>
-          <p className="text-sm text-slate-300 max-w-xl mx-auto leading-relaxed">
-            Upload notes, exams, sheets, or homework slides. Join thousands of candidates and institutions using CBTify.ai.
-          </p>
-          <div>
+          <div className="mt-16 text-center">
             <Link
-              to="/register"
-              className="inline-flex items-center space-x-2 px-8 py-4 rounded-xl bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent text-white font-bold text-sm shadow-glowBlue hover:scale-105 transition-all"
+              to="/upload"
+              className="inline-flex items-center gap-3 rounded-full bg-white/5 border border-white/15 px-8 py-4 text-sm font-semibold text-white hover:border-lime-300/50 hover:bg-lime-300/10 hover:text-lime-300 transition-all"
             >
-              <span>Get Started Now</span>
-              <ArrowRight className="w-4.5 h-4.5" />
+              Try Uploading a File Now <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-        </GlassCard>
+        </div>
       </section>
 
-      {/* FOOTER */}
-      <footer className="py-10 border-t border-white/5 text-center text-xs text-mutedGray relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-          <div className="flex items-center justify-center space-x-2">
-            <div className="w-6 h-6 rounded bg-accentBlue flex items-center justify-center"><Cpu className="w-3.5 h-3.5 text-white" /></div>
-            <span className="font-bold text-white text-sm">CBTify.ai</span>
+      {/* ABOUT CBTIFY */}
+      <section id="about" className="relative overflow-hidden bg-[#101010] px-6 py-24 sm:px-12 lg:px-20 lg:py-32">
+        <div className="pointer-events-none absolute inset-0 opacity-20 [background-image:linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] [background-size:72px_72px]" />
+        <div className="pointer-events-none absolute -right-48 top-24 size-[34rem] rounded-full bg-lime-300/10 blur-3xl" />
+
+        <div className="relative mx-auto max-w-[1600px]">
+          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:items-end">
+            <p className="text-xs font-bold uppercase tracking-[0.25em] text-lime-300">About CBTify</p>
+            <h2 className="max-w-5xl text-5xl font-medium leading-[0.94] tracking-[-0.06em] text-[#f7f7f4] sm:text-7xl">
+              Good assessment should feel like part of learning—not the end of it.
+            </h2>
           </div>
-          <p>© 2026 CBTify.ai. Powered by Hugging Face &amp; PaddleOCR.</p>
+
+          <div className="mt-24 grid gap-16 border-t border-white/15 pt-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
+            <div>
+              <p className="max-w-md text-2xl leading-9 tracking-[-0.035em] text-zinc-300">
+                We make it effortless for educators and institutions to create moments of practice, reflection, and progress from the material they already have.
+              </p>
+              <div className="mt-14 flex gap-12 border-l-2 border-lime-300 pl-5">
+                <div>
+                  <p className="text-3xl font-medium tracking-[-0.06em] text-white">One place</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.16em] text-zinc-500 font-semibold">For every assessment</p>
+                </div>
+                <div>
+                  <p className="text-3xl font-medium tracking-[-0.06em] text-lime-300">Less busywork</p>
+                  <p className="mt-2 text-xs uppercase tracking-[0.16em] text-zinc-500 font-semibold">More teaching time</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-zinc-500">What we care about</p>
+              <div className="mt-6 border-t border-white/10">
+                {commitments.map(([title, description], index) => (
+                  <div key={title} className="grid gap-4 border-b border-white/10 py-7 sm:grid-cols-[3.5rem_1fr]">
+                    <span className="text-sm font-bold text-lime-300">0{index + 1}</span>
+                    <div>
+                      <h4 className="text-xl font-medium tracking-[-0.035em] text-white">{title}</h4>
+                      <p className="mt-2 max-w-lg text-sm leading-6 text-zinc-400 font-normal">{description}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
-      </footer>
-    </div>
+      </section>
+
+      {/* CONTACT / GET IN TOUCH */}
+      <section id="contact" className="relative overflow-hidden border-t border-white/10 bg-[#0c0c0c] px-6 py-24 sm:px-12 lg:px-20 lg:py-32">
+        <div className="pointer-events-none absolute -bottom-72 left-1/2 size-[48rem] -translate-x-1/2 rounded-full bg-lime-300/10 blur-3xl" />
+
+        <div className="relative mx-auto max-w-[1600px]">
+          <div className="grid gap-14 lg:grid-cols-[1fr_0.9fr] lg:gap-24">
+            <div>
+              <p className="mb-5 text-xs font-bold uppercase tracking-[0.25em] text-lime-300">Get in touch</p>
+              <h2 className="max-w-3xl text-5xl font-medium leading-[0.94] tracking-[-0.06em] text-[#f7f7f4] sm:text-7xl">
+                Let’s make learning easier to measure.
+              </h2>
+              <p className="mt-8 max-w-lg text-lg leading-8 text-zinc-400">
+                Have a question, a partnership idea, or want a custom deployment for your institution? We would love to hear from you.
+              </p>
+              <div className="mt-14 flex flex-wrap gap-x-10 gap-y-6 border-t border-white/10 pt-7">
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-600">Email us</p>
+                  <a className="mt-2 block text-base text-zinc-200 transition-colors hover:text-lime-300" href="mailto:hello@cbtify.ai">
+                    hello@cbtify.ai
+                  </a>
+                </div>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-600">Response time</p>
+                  <p className="mt-2 text-base text-zinc-200">Within 1–2 business days</p>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              {submitted && (
+                <div className="mb-6 p-4 rounded-2xl bg-lime-300/15 border border-lime-300/30 text-lime-300 text-sm font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5" />
+                  Thank you! Your message has been sent successfully.
+                </div>
+              )}
+              <form className="border-t border-white/15 pt-2" onSubmit={handleContactSubmit}>
+                <label className="block border-b border-white/15 pb-5">
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Your name</span>
+                  <input
+                    className="mt-4 w-full bg-transparent text-xl text-white outline-none placeholder:text-zinc-700"
+                    type="text"
+                    value={contactForm.name}
+                    onChange={(e) => setContactForm({ ...contactForm, name: e.target.value })}
+                    placeholder="What should we call you?"
+                    required
+                  />
+                </label>
+                <label className="mt-7 block border-b border-white/15 pb-5">
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Email address</span>
+                  <input
+                    className="mt-4 w-full bg-transparent text-xl text-white outline-none placeholder:text-zinc-700"
+                    type="email"
+                    value={contactForm.email}
+                    onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
+                    placeholder="you@example.com"
+                    required
+                  />
+                </label>
+                <label className="mt-7 block border-b border-white/15 pb-5">
+                  <span className="text-xs font-bold uppercase tracking-[0.16em] text-zinc-500">Message</span>
+                  <textarea
+                    className="mt-4 min-h-28 w-full resize-none bg-transparent text-xl text-white outline-none placeholder:text-zinc-700"
+                    value={contactForm.message}
+                    onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                    placeholder="Tell us a little about what you need."
+                    rows={3}
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="mt-8 inline-flex items-center gap-3 rounded-full bg-lime-300 px-7 py-4 text-sm font-bold text-zinc-950 transition-all hover:-translate-y-1 hover:bg-lime-200 shadow-md disabled:opacity-50"
+                >
+                  {submitting ? 'Sending...' : 'Send message'} <span aria-hidden="true">↗</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div className="mt-24 flex flex-col gap-5 border-t border-white/10 pt-7 text-sm text-zinc-600 sm:flex-row sm:items-center sm:justify-between">
+            <span>© 2026 CBTify.ai. Built for smarter assessment.</span>
+            <a href="#home" className="transition-colors hover:text-lime-300">
+              Back to top ↑
+            </a>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 };
 

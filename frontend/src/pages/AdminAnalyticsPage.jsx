@@ -64,14 +64,14 @@ const AdminAnalyticsPage = () => {
 
   const exportCSV = () => {
     if (!data?.submissions?.length) return;
-    const headers = 'Student Name,Email,Score,Accuracy %,Time Spent,Submitted At\r\n';
+    const headers = 'Student Name,Email,Score,Total Questions,Accuracy (%),Time Spent,Submitted At\r\n';
     const rows = data.submissions
       .map(
         (s) =>
-          `"${s.username}","${s.userId}",${s.score}/${s.totalQuestions},${s.accuracy}%,"${formatTime(s.timeSpent)}","${new Date(s.createdAt).toLocaleString()}"`
+          `"${(s.username || 'Student').replace(/"/g, '""')}","${(s.userEmail || s.email || s.userId || 'N/A').replace(/"/g, '""')}",${s.score},${s.totalQuestions || data?.test?.questions?.length || 10},"${s.accuracy}%","${formatTime(s.timeSpent)}","${new Date(s.createdAt).toLocaleString()}"`
       )
       .join('\r\n');
-    const csvContent = 'data:text/csv;charset=utf-8,' + encodeURIComponent(headers + rows);
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(headers + rows);
     const link = document.createElement('a');
     link.setAttribute('href', csvContent);
     link.setAttribute('download', `cbtify_${testId}_roster.csv`);
@@ -83,42 +83,42 @@ const AdminAnalyticsPage = () => {
   const renderScoreChart = () => {
     if (!data?.submissions?.length) return null;
     const buckets = [
-      { label: '0–20%', min: 0, max: 20, color: '#ef4444' },
-      { label: '21–40%', min: 21, max: 40, color: '#f97316' },
-      { label: '41–60%', min: 41, max: 60, color: '#eab308' },
-      { label: '61–80%', min: 61, max: 80, color: '#22c55e' },
-      { label: '81–100%', min: 81, max: 100, color: '#06b6d4' },
+      { label: '0–20%', min: 0, max: 20, color: '#fb7185' },
+      { label: '21–40%', min: 21, max: 40, color: '#fb923c' },
+      { label: '41–60%', min: 41, max: 60, color: '#facc15' },
+      { label: '61–80%', min: 61, max: 80, color: '#a3e635' },
+      { label: '81–100%', min: 81, max: 100, color: '#bef264' },
     ];
     const counts = buckets.map(
       (b) => data.submissions.filter((s) => s.accuracy >= b.min && s.accuracy <= b.max).length
     );
     const maxCount = Math.max(...counts, 1);
-    const chartH = 120;
-    const barW = 44;
-    const gap = 16;
-    const width = buckets.length * (barW + gap);
 
     return (
-      <svg viewBox={`0 0 ${width} ${chartH + 36}`} className="w-full">
-        {counts.map((count, i) => {
-          const barH = (count / maxCount) * chartH;
-          const x = i * (barW + gap);
-          const y = chartH - barH;
+      <div className="w-full h-full flex items-end justify-between gap-3 px-2 pb-1">
+        {buckets.map((b, i) => {
+          const count = counts[i];
+          const heightPct = count > 0 ? Math.max(14, Math.round((count / maxCount) * 80)) : 4;
           return (
-            <g key={i}>
-              <rect x={x} y={y} width={barW} height={barH} rx={6} fill={buckets[i].color} opacity={0.75} />
-              {count > 0 && (
-                <text x={x + barW / 2} y={y - 6} textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">
-                  {count}
-                </text>
-              )}
-              <text x={x + barW / 2} y={chartH + 16} textAnchor="middle" fill="#6b7280" fontSize="9">
-                {buckets[i].label}
-              </text>
-            </g>
+            <div key={i} className="flex-1 flex flex-col items-center justify-end h-full gap-2">
+              <span className={`text-[11px] font-bold font-mono transition-opacity ${count > 0 ? 'text-white' : 'opacity-0'}`}>
+                {count}
+              </span>
+              <div 
+                className="w-full max-w-[48px] rounded-lg transition-all duration-300 shadow-sm"
+                style={{ 
+                  height: `${heightPct}%`, 
+                  backgroundColor: count > 0 ? b.color : 'rgba(255,255,255,0.05)',
+                  opacity: count > 0 ? 0.9 : 0.4
+                }}
+              />
+              <span className="text-[10px] text-zinc-400 font-mono whitespace-nowrap mt-1">
+                {b.label}
+              </span>
+            </div>
           );
         })}
-      </svg>
+      </div>
     );
   };
 
@@ -126,8 +126,8 @@ const AdminAnalyticsPage = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 rounded-full border-2 border-accentBlue border-t-transparent animate-spin mx-auto" />
-          <p className="text-xs text-mutedGray">Loading test analytics...</p>
+          <div className="w-10 h-10 rounded-full border-2 border-lime-300 border-t-transparent animate-spin mx-auto" />
+          <p className="text-xs text-zinc-400 font-medium">Loading assessment analytics...</p>
         </div>
       </div>
     );
@@ -137,9 +137,9 @@ const AdminAnalyticsPage = () => {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="text-center space-y-3">
-          <AlertTriangle className="w-10 h-10 text-red-400 mx-auto" />
-          <p className="text-sm text-red-400">{error}</p>
-          <button onClick={() => navigate('/organization')} className="text-xs text-accentBlue underline">
+          <AlertTriangle className="w-10 h-10 text-rose-400 mx-auto" />
+          <p className="text-sm text-rose-400">{error}</p>
+          <button onClick={() => navigate('/org-portal')} className="text-xs text-lime-300 underline font-semibold">
             Back to Portal
           </button>
         </div>
@@ -150,34 +150,34 @@ const AdminAnalyticsPage = () => {
   const { test, totalAttempts, avgScore, avgTime, submissions, questionHeatmap } = data;
 
   const statCards = [
-    { label: 'Total Attempts', value: totalAttempts, icon: Users, color: 'blue' },
-    { label: 'Average Score', value: `${avgScore}%`, icon: Trophy, color: 'green' },
-    { label: 'Avg Time Taken', value: formatTime(avgTime), icon: Clock, color: 'purple' },
-    { label: 'Total Questions', value: test?.questions?.length ?? '—', icon: Target, color: 'cyan' },
+    { label: 'Total Attempts', value: totalAttempts, icon: Users },
+    { label: 'Average Score', value: `${avgScore}%`, icon: Trophy },
+    { label: 'Avg Time Taken', value: formatTime(avgTime), icon: Clock },
+    { label: 'Total Questions', value: test?.questions?.length ?? '—', icon: Target },
   ];
 
   return (
-    <div className="space-y-8 animate-fadeIn">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/5">
+    <div className="space-y-8 max-w-[1500px] mx-auto pb-12">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div className="flex items-start gap-3">
           <button
-            onClick={() => navigate('/organization')}
-            className="mt-1 p-1.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-mutedGray hover:text-white transition-all flex-shrink-0"
+            onClick={() => navigate('/org-portal')}
+            className="mt-1 p-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-zinc-400 hover:text-white transition-all flex-shrink-0"
           >
             <ArrowLeft className="w-4 h-4" />
           </button>
           <div>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-white leading-tight">{test?.title}</h1>
-            <p className="text-xs text-mutedGray mt-1">{test?.description}</p>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#f7f7f4] leading-tight">{test?.title}</h1>
+            <p className="text-xs text-zinc-400 mt-1">{test?.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0">
           <button
             onClick={copyLink}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold transition-all ${
               linkCopied
-                ? 'bg-green-500/20 border border-green-500/30 text-green-400'
-                : 'bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent hover:bg-cyanAccent/20'
+                ? 'bg-lime-300 text-zinc-950 font-bold'
+                : 'bg-white/5 border border-white/10 text-lime-300 hover:bg-white/10'
             }`}
           >
             {linkCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -186,28 +186,24 @@ const AdminAnalyticsPage = () => {
           <button
             onClick={exportCSV}
             disabled={!submissions?.length}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-white transition-all disabled:opacity-40"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-white transition-all disabled:opacity-40"
           >
-            <Download className="w-4 h-4 text-cyanAccent" />
+            <Download className="w-4 h-4 text-lime-300" />
             Export CSV
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <GlassCard key={stat.label} glowColor={stat.color} className="p-5 flex items-center justify-between">
-              <div className="space-y-1.5">
-                <span className="text-[10px] text-mutedGray uppercase tracking-wider block font-semibold">{stat.label}</span>
-                <h3 className="text-2xl font-extrabold text-white tracking-tight">{stat.value}</h3>
+            <GlassCard key={stat.label} className="p-5 flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[11px] text-zinc-400 uppercase tracking-wider block font-semibold">{stat.label}</span>
+                <h3 className="text-2xl font-bold text-white tracking-tight">{stat.value}</h3>
               </div>
-              <div className={`w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${
-                stat.color === 'blue' ? 'text-accentBlue' :
-                stat.color === 'green' ? 'text-green-400' :
-                stat.color === 'purple' ? 'text-purpleGlow' : 'text-cyanAccent'
-              }`}>
+              <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lime-300">
                 <Icon className="w-5 h-5" />
               </div>
             </GlassCard>
@@ -216,96 +212,96 @@ const AdminAnalyticsPage = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-accentBlue" />
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+            <BarChart3 className="w-4 h-4 text-lime-300" />
             Score Distribution
           </h3>
-          <GlassCard glowColor="blue" className="p-6 h-56 flex items-end">
+          <GlassCard className="p-6 h-56 flex items-end">
             {submissions?.length > 0 ? renderScoreChart() : (
-              <div className="w-full text-center text-xs text-mutedGray">No attempts yet.</div>
+              <div className="w-full text-center text-xs text-zinc-500">No attempts recorded yet.</div>
             )}
           </GlassCard>
         </div>
 
-        <div className="space-y-4">
-          <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-            <TrendingDown className="w-4 h-4 text-red-400" />
-            Question Difficulty (Wrong Rate)
+        <div className="space-y-3">
+          <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+            <TrendingDown className="w-4 h-4 text-rose-400" />
+            Question Difficulty (Mistake Rate)
           </h3>
-          <GlassCard glowColor="purple" className="p-5 space-y-3 h-56 overflow-y-auto">
+          <GlassCard className="p-6 h-56 overflow-y-auto space-y-3">
             {questionHeatmap?.length > 0 ? (
               questionHeatmap
+                .slice()
                 .sort((a, b) => b.wrongRate - a.wrongRate)
-                .slice(0, 8)
                 .map((q) => (
-                  <div key={q.questionIndex} className="space-y-1">
-                    <div className="flex justify-between text-[10px]">
-                      <span className="text-slate-300 truncate max-w-[70%]">Q{q.questionIndex + 1}: {q.questionText.slice(0, 50)}...</span>
-                      <span className={`font-bold ml-2 flex-shrink-0 ${q.wrongRate >= 60 ? 'text-red-400' : q.wrongRate >= 30 ? 'text-yellow-400' : 'text-green-400'}`}>
+                  <div key={q.questionIndex} className="space-y-1 text-xs">
+                    <div className="flex justify-between items-center text-[11px]">
+                      <span className="text-zinc-300 truncate max-w-[70%]">Q{q.questionIndex + 1}: {q.questionText.slice(0, 50)}...</span>
+                      <span className={`font-bold font-mono ml-2 flex-shrink-0 ${q.wrongRate >= 60 ? 'text-rose-400' : q.wrongRate >= 30 ? 'text-amber-400' : 'text-lime-300'}`}>
                         {q.wrongRate}% wrong
                       </span>
                     </div>
                     <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full ${q.wrongRate >= 60 ? 'bg-red-500' : q.wrongRate >= 30 ? 'bg-yellow-400' : 'bg-green-400'}`}
+                        className={`h-full rounded-full ${q.wrongRate >= 60 ? 'bg-rose-500' : q.wrongRate >= 30 ? 'bg-amber-400' : 'bg-lime-300'}`}
                         style={{ width: `${q.wrongRate}%` }}
                       />
                     </div>
                   </div>
                 ))
             ) : (
-              <div className="text-center text-xs text-mutedGray py-6">No attempt data available.</div>
+              <div className="text-center text-xs text-zinc-500 py-6">No attempt data available.</div>
             )}
           </GlassCard>
         </div>
       </div>
 
-      <div className="space-y-4">
-        <h3 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
-          <Activity className="w-4 h-4 text-cyanAccent" />
-          Student Attempt Roster
-          <span className="text-[10px] text-mutedGray font-normal normal-case ml-1">({submissions?.length || 0} attempts recorded)</span>
+      <div className="space-y-3">
+        <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
+          <Activity className="w-4 h-4 text-lime-300" />
+          Candidate Attempt Roster
+          <span className="text-xs text-zinc-500 font-normal font-mono ml-1">({submissions?.length || 0} attempts recorded)</span>
         </h3>
 
-        <GlassCard glowColor="cyan" className="p-0 overflow-hidden border border-white/5">
+        <GlassCard className="p-0 overflow-hidden border border-white/10">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-white/[0.02] text-mutedGray uppercase tracking-wider text-[10px] border-b border-white/5">
+              <thead className="bg-[#181818] text-zinc-400 uppercase tracking-wider text-[10px] border-b border-white/10 font-semibold">
                 <tr>
-                  <th className="py-4 px-5 font-semibold">Student</th>
-                  <th className="py-4 px-5 font-semibold">Email / ID</th>
-                  <th className="py-4 px-5 font-semibold text-center">Score</th>
-                  <th className="py-4 px-5 font-semibold text-center">Accuracy</th>
-                  <th className="py-4 px-5 font-semibold text-center">Time Taken</th>
-                  <th className="py-4 px-5 font-semibold">Submitted At</th>
-                  <th className="py-4 px-5 font-semibold text-center">Result</th>
+                  <th className="py-4 px-5">Candidate</th>
+                  <th className="py-4 px-5">Email / ID</th>
+                  <th className="py-4 px-5 text-center">Score</th>
+                  <th className="py-4 px-5 text-center">Accuracy</th>
+                  <th className="py-4 px-5 text-center">Time Taken</th>
+                  <th className="py-4 px-5">Submitted At</th>
+                  <th className="py-4 px-5 text-center">Result</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
                 {submissions?.length > 0 ? submissions.map((sub) => (
-                  <tr key={sub.id} className="hover:bg-white/[0.01] transition-colors">
+                  <tr key={sub.id} className="hover:bg-white/[0.02] transition-colors">
                     <td className="py-4 px-5 font-semibold text-white">{sub.username}</td>
-                    <td className="py-4 px-5 text-mutedGray font-mono text-[10px]">{sub.userEmail || sub.userId}</td>
-                    <td className="py-4 px-5 text-center font-bold text-slate-300">
+                    <td className="py-4 px-5 text-zinc-400 font-mono text-[11px]">{sub.userEmail || sub.userId}</td>
+                    <td className="py-4 px-5 text-center font-bold text-zinc-300">
                       {sub.score}/{sub.totalQuestions}
                     </td>
                     <td className="py-4 px-5 text-center">
-                      <span className={`font-bold text-sm ${sub.accuracy >= 80 ? 'text-green-400' : sub.accuracy >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>
+                      <span className={`font-bold font-mono text-sm ${sub.accuracy >= 80 ? 'text-lime-300' : sub.accuracy >= 60 ? 'text-amber-300' : 'text-rose-400'}`}>
                         {sub.accuracy}%
                       </span>
                     </td>
-                    <td className="py-4 px-5 text-center font-mono text-slate-300">{formatTime(sub.timeSpent)}</td>
-                    <td className="py-4 px-5 text-mutedGray font-mono text-[10px]">
+                    <td className="py-4 px-5 text-center font-mono text-zinc-300">{formatTime(sub.timeSpent)}</td>
+                    <td className="py-4 px-5 text-zinc-500 font-mono text-[11px]">
                       {new Date(sub.createdAt).toLocaleString()}
                     </td>
                     <td className="py-4 px-5 text-center">
                       {sub.accuracy >= 60 ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-green-400 bg-green-500/15 border border-green-500/25 px-2 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-lime-300 bg-lime-300/10 border border-lime-300/25 px-2.5 py-0.5 rounded-full font-bold">
                           <CheckCircle className="w-3 h-3" /> Pass
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] text-red-400 bg-red-500/15 border border-red-500/25 px-2 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-1 text-[10px] text-rose-400 bg-rose-500/10 border border-rose-500/25 px-2.5 py-0.5 rounded-full font-bold">
                           <XCircle className="w-3 h-3" /> Fail
                         </span>
                       )}
@@ -313,8 +309,8 @@ const AdminAnalyticsPage = () => {
                   </tr>
                 )) : (
                   <tr>
-                    <td colSpan={7} className="py-12 text-center text-xs text-mutedGray">
-                      No students have attempted this test yet. Share the link to get started!
+                    <td colSpan={7} className="py-12 text-center text-xs text-zinc-500">
+                      No candidates have attempted this test yet. Share the link to get started!
                     </td>
                   </tr>
                 )}

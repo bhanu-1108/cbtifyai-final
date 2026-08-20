@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { Mail, Cpu, CheckCircle, AlertCircle, ArrowLeft } from 'lucide-react';
+import { Mail, CheckCircle, AlertCircle, ArrowLeft, ArrowRight } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 
 const ForgotPasswordPage = () => {
@@ -35,84 +35,69 @@ const ForgotPasswordPage = () => {
   };
 
   return (
-    <div className="relative min-h-[calc(100vh-80px)] flex items-center justify-center px-4 py-12 grid-bg">
-      <div className="glow-orb-blue top-10 left-10"></div>
-      <div className="glow-orb-purple bottom-10 right-10"></div>
-
-      <div className="w-full max-w-md relative z-10">
+    <div className="min-h-[calc(100vh-6rem)] flex items-center justify-center px-4 py-16 bg-[#101010]">
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2.5 mb-3">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-tr from-accentBlue to-purpleGlow flex items-center justify-center shadow-glowBlue">
-              <Cpu className="w-4.5 h-4.5 text-white" />
-            </div>
-            <span className="font-bold text-xl text-white">CBTify.ai</span>
+          <Link to="/" className="inline-flex items-center gap-2 mb-4">
+            <span className="text-3xl font-black tracking-[-0.08em] text-white">
+              CBTi<span className="text-lime-300"> f y. a i</span>
+            </span>
           </Link>
-          <h2 className="text-2xl font-bold text-white">Reset password</h2>
-          <p className="text-xs text-mutedGray mt-1.5">Enter your email to receive recovery instructions.</p>
+          <h2 className="text-2xl font-bold tracking-tight text-[#f7f7f4]">Reset password</h2>
+          <p className="text-sm text-zinc-400 mt-1">Enter your email address to receive reset instructions</p>
         </div>
 
-        <GlassCard glowColor="cyan" className="p-8">
+        <GlassCard className="p-8 border border-white/10 shadow-2xl">
           {error && (
-            <div className="flex items-center space-x-2.5 p-3.5 mb-5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
-              <AlertCircle className="w-4.5 h-4.5 flex-shrink-0" />
+            <div className="flex items-center gap-2.5 p-3.5 mb-6 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          {success ? (
-            <div className="text-center space-y-4 py-4 animate-fadeIn">
-              <div className="w-12 h-12 rounded-full bg-green-500/10 border border-green-500/20 flex items-center justify-center mx-auto text-green-400">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <h3 className="text-sm font-semibold text-white">Instructions sent</h3>
-              <p className="text-xs text-mutedGray leading-relaxed">{success}</p>
-              <div className="pt-2">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center space-x-2 text-xs font-semibold text-accentBlue hover:text-cyanAccent transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Return to login</span>
-                </Link>
+          {success && (
+            <div className="flex items-center gap-2.5 p-3.5 mb-6 rounded-xl bg-lime-300/15 border border-lime-300/30 text-lime-300 text-xs font-semibold">
+              <CheckCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{success}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div className="space-y-1.5">
+              <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider">Email Address</label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-500">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  className="w-full pl-10 pr-4 py-3 bg-[#1c1c1c] border border-white/10 rounded-xl text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-1 focus:ring-lime-300 focus:border-lime-300 transition-colors"
+                />
               </div>
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300">Email Address</label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-mutedGray">
-                    <Mail className="w-4.5 h-4.5" />
-                  </div>
-                  <input 
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@domain.com"
-                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-accentBlue focus:border-accentBlue transition-colors"
-                  />
-                </div>
-              </div>
 
-              <button 
-                type="submit"
-                disabled={loading}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent text-white text-xs font-semibold hover:scale-[1.02] active:scale-95 disabled:scale-100 disabled:opacity-50 transition-all flex items-center justify-center"
-              >
-                {loading ? 'Sending email...' : 'Send Recovery Email'}
-              </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 rounded-full bg-lime-300 text-zinc-950 text-sm font-bold hover:bg-lime-200 active:scale-95 disabled:opacity-50 transition-all shadow-md flex items-center justify-center gap-2"
+            >
+              <span>{loading ? 'Sending link...' : 'Send Recovery Link'}</span>
+              {!loading && <ArrowRight className="w-4 h-4" />}
+            </button>
+          </form>
 
-              <div className="text-center pt-2">
-                <Link
-                  to="/login"
-                  className="inline-flex items-center space-x-2 text-[11px] text-mutedGray hover:text-white transition-colors"
-                >
-                  <ArrowLeft className="w-3.5 h-3.5" />
-                  <span>Back to login</span>
-                </Link>
-              </div>
-            </form>
-          )}
+          <div className="mt-6 pt-6 border-t border-white/10 text-center">
+            <Link
+              to="/login"
+              className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-400 hover:text-lime-300 transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to sign in</span>
+            </Link>
+          </div>
         </GlassCard>
       </div>
     </div>

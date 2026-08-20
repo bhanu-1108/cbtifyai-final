@@ -28,18 +28,18 @@ const AppLayout = ({ children }) => {
   const isTestPage = location.pathname.startsWith('/test/');
 
   if (isTestPage) {
-    return <>{children}</>;
+    return <div className="min-h-screen bg-[#101010] text-white selection:bg-lime-300 selection:text-black">{children}</div>;
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-darkBg text-white">
+    <div className="flex flex-col min-h-screen bg-[#101010] text-[#f7f7f4] selection:bg-lime-300 selection:text-black">
       <Navbar />
-      <div className="flex flex-1 max-w-7xl mx-auto w-full">
+      <div className="flex flex-1 max-w-[1600px] mx-auto w-full pt-20 md:pt-24">
         {/* Sidebar on left */}
         <Sidebar />
         
         {/* Main Content Pane on right */}
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className="flex-1 p-4 sm:p-6 md:p-8 overflow-y-auto">
           {children}
         </main>
       </div>
@@ -50,7 +50,7 @@ const AppLayout = ({ children }) => {
 // Layout wrapper for public pages
 const PublicLayout = ({ children }) => {
   return (
-    <div className="flex flex-col min-h-screen bg-darkBg text-white">
+    <div className="flex flex-col min-h-screen bg-[#101010] text-[#f7f7f4] selection:bg-lime-300 selection:text-black">
       <Navbar />
       <div className="flex-1">{children}</div>
     </div>

@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { 
   UploadCloud, 
   FileText, 
-  Cpu, 
   CheckCircle2, 
   Play, 
   AlertCircle, 
@@ -12,7 +11,9 @@ import {
   RotateCw, 
   Link2, 
   Copy, 
-  CheckCheck
+  CheckCheck,
+  Timer,
+  Sparkles
 } from 'lucide-react';
 import GlassCard from '../components/GlassCard';
 
@@ -28,6 +29,24 @@ const UploadPage = () => {
   const [generatedTestId, setGeneratedTestId] = useState(null);
   const [conversionError, setConversionError] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const timerIntervalRef = useRef(null);
+
+  // Live timer during processing
+  useEffect(() => {
+    if (['uploading', 'processing', 'generating'].includes(conversionStatus)) {
+      setElapsedSeconds(0);
+      const startTime = Date.now();
+      timerIntervalRef.current = setInterval(() => {
+        setElapsedSeconds(((Date.now() - startTime) / 1000).toFixed(1));
+      }, 100);
+    } else {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    }
+    return () => {
+      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
+    };
+  }, [conversionStatus]);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -70,13 +89,24 @@ const UploadPage = () => {
 
     try {
       setConversionStatus('uploading');
-      await new Promise(resolve => setTimeout(resolve, 250));
-
-      setConversionStatus('processing');
-      const response = await fetch(`${apiBaseUrl}/api/convert-to-cbt`, {
+      
+      const responsePromise = fetch(`${apiBaseUrl}/api/convert-to-cbt`, {
         method: 'POST',
         body: formData,
       });
+
+      // Quick visual stage transitions based on response progress
+      const timer = setTimeout(() => {
+        setConversionStatus('processing');
+      }, 300);
+
+      const genTimer = setTimeout(() => {
+        setConversionStatus('generating');
+      }, 1200);
+
+      const response = await responsePromise;
+      clearTimeout(timer);
+      clearTimeout(genTimer);
 
       const data = await response.json();
 
@@ -110,6 +140,7 @@ const UploadPage = () => {
     setGeneratedTestId(null);
     setConversionError('');
     setLinkCopied(false);
+    setElapsedSeconds(0);
   };
 
   const selectMockFile = (name) => {
@@ -124,15 +155,21 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="space-y-8 animate-fadeIn max-w-4xl mx-auto">
+    <div className="space-y-8 max-w-5xl mx-auto pb-12">
       {/* Page Header */}
-      <div className="pb-5 border-b border-white/5">
-        <h1 className="text-2xl md:text-3xl font-extrabold text-white">
-          {currentUser?.role === 'organization' ? 'Generate New CBT Exam' : 'AI Document Converter'}
-        </h1>
-        <p className="text-xs text-mutedGray mt-1">
-          Upload PDF notes, homework assignments or question papers and transform them into standardized CBT exams.
-        </p>
+      <div className="pb-6 border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#f7f7f4]">
+            {currentUser?.role === 'organization' ? 'Create Computer-Based Assessment' : 'AI Assessment Generator'}
+          </h1>
+          <p className="text-sm text-zinc-400 mt-1">
+            Upload PDF notes, textbooks, or image documents to extract text and synthesize interactive CBT assessments with Qwen AI.
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-xs text-zinc-400 bg-white/5 border border-white/10 px-4 py-2 rounded-full self-start md:self-auto font-mono">
+          <Sparkles className="w-3.5 h-3.5 text-lime-300" />
+          <span>High-Speed AI Pipeline</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -143,10 +180,10 @@ const UploadPage = () => {
               onDragOver={handleDrag}
               onDragLeave={handleDrag}
               onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-2xl p-12 text-center transition-all duration-300 relative ${
+              className={`border-2 border-dashed rounded-3xl p-12 text-center transition-all duration-200 relative ${
                 dragActive
-                  ? 'border-accentBlue bg-accentBlue/5 shadow-glowBlue scale-[1.01]'
-                  : 'border-white/10 bg-darkSec/20 hover:border-white/20'
+                  ? 'border-lime-300 bg-lime-300/10 scale-[1.01]'
+                  : 'border-white/15 bg-[#141414] hover:border-white/25'
               }`}
             >
               <input
@@ -157,131 +194,136 @@ const UploadPage = () => {
                 onChange={handleFileInput}
               />
               <label htmlFor="file-upload-input" className="cursor-pointer flex flex-col items-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-mutedGray hover:text-white transition-colors">
-                  <UploadCloud className="w-8 h-8 text-accentBlue animate-pulse" />
+                <div className="w-16 h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-zinc-400 hover:text-white transition-colors">
+                  <UploadCloud className="w-8 h-8 text-lime-300" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">Drag &amp; drop your files here</h3>
-                  <p className="text-xs text-mutedGray mt-1">or click to browse from directory</p>
+                  <h3 className="text-base font-bold text-white">Drag and drop your document here</h3>
+                  <p className="text-xs text-zinc-400 mt-1">or click to browse your files</p>
                 </div>
-                <div className="text-[10px] text-mutedGray max-w-xs leading-normal">
-                  Supported formats: PDF, JPG, PNG, JPEG. Maximum file size: 50MB. Scanned images and notes are automatically text-processed.
+                <div className="text-xs text-zinc-500 max-w-sm leading-relaxed">
+                  Supported formats: PDF, JPG, PNG, JPEG (up to 50MB). Automated OCR text processing with PaddleOCR and PyMuPDF.
                 </div>
               </label>
             </div>
           ) : (
-            <GlassCard glowColor="blue" className="p-8 space-y-8">
-              <div className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+            <GlassCard className="p-7 space-y-7">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-[#1c1c1c] border border-white/10">
                 <div className="flex items-center space-x-3 overflow-hidden">
-                  <FileText className="w-6 h-6 text-accentBlue flex-shrink-0" />
+                  <FileText className="w-6 h-6 text-lime-300 flex-shrink-0" />
                   <div className="overflow-hidden">
                     <h4 className="text-sm font-semibold text-white truncate">{selectedFile.name}</h4>
-                    <span className="text-[10px] text-mutedGray font-mono">{selectedFile.size}</span>
+                    <span className="text-xs text-zinc-500 font-mono">{selectedFile.size}</span>
                   </div>
                 </div>
-                <div className="text-xs font-semibold uppercase text-accentBlue font-mono">
-                  {conversionStatus === 'ready' ? 'Complete' : conversionStatus === 'error' ? 'Failed' : 'Processing'}
+                <div className="flex items-center gap-3">
+                  {['uploading', 'processing', 'generating'].includes(conversionStatus) && (
+                    <span className="text-xs text-zinc-400 font-mono flex items-center gap-1">
+                      <Timer className="w-3.5 h-3.5 text-lime-300 animate-spin" />
+                      {elapsedSeconds}s
+                    </span>
+                  )}
+                  <div className="text-xs font-bold uppercase text-lime-300 font-mono">
+                    {conversionStatus === 'ready' ? 'Complete' : conversionStatus === 'error' ? 'Failed' : 'Processing'}
+                  </div>
                 </div>
               </div>
 
               {conversionError && (
-                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-[11px] leading-relaxed flex items-start gap-2">
+                <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs leading-relaxed flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                   <span>{conversionError}</span>
                 </div>
               )}
 
-              <div className="space-y-6 relative pl-8 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/5">
+              {/* Step Checklist */}
+              <div className="space-y-5 relative pl-8 before:absolute before:left-3 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/10">
                 <div className="relative">
                   <div className={`absolute -left-8 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${
-                    conversionStatus === 'uploading' ? 'bg-accentBlue/20 border-accentBlue text-accentBlue animate-pulse' : 'bg-green-500/20 border-green-500 text-green-400'
+                    conversionStatus === 'uploading' ? 'bg-lime-300/20 border-lime-300 text-lime-300 animate-pulse' : 'bg-lime-300/20 border-lime-300 text-lime-300'
                   }`}>
-                    {conversionStatus === 'uploading' ? <RotateCw className="w-3 h-3 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                    {conversionStatus === 'uploading' ? <RotateCw className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
                   </div>
                   <div>
                     <h5 className="text-xs font-bold text-white">Uploading Document</h5>
-                    <p className="text-[10px] text-mutedGray mt-0.5">Transferring document to processing pipeline...</p>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Sending document to backend pipeline...</p>
                   </div>
                 </div>
 
                 <div className="relative">
                   <div className={`absolute -left-8 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${
-                    conversionStatus === 'uploading' ? 'bg-white/5 border-white/10 text-mutedGray' :
-                    conversionStatus === 'processing' ? 'bg-purpleGlow/20 border-purpleGlow text-purpleGlow animate-pulse' :
-                    'bg-green-500/20 border-green-500 text-green-400'
+                    conversionStatus === 'uploading' ? 'bg-white/5 border-white/10 text-zinc-500' :
+                    conversionStatus === 'processing' ? 'bg-lime-300/20 border-lime-300 text-lime-300 animate-pulse' :
+                    'bg-lime-300/20 border-lime-300 text-lime-300'
                   }`}>
                     {conversionStatus === 'uploading' ? '2' :
-                     conversionStatus === 'processing' ? <RotateCw className="w-3 h-3 animate-spin" /> :
+                     conversionStatus === 'processing' ? <RotateCw className="w-3.5 h-3.5 animate-spin" /> :
                      <CheckCircle2 className="w-3.5 h-3.5" />}
                   </div>
                   <div>
-                    <h5 className={`text-xs font-bold ${conversionStatus === 'uploading' ? 'text-mutedGray' : 'text-white'}`}>Layout &amp; Content Extraction</h5>
-                    <p className="text-[10px] text-mutedGray mt-0.5">Extracting document passages and removing background noise.</p>
+                    <h5 className={`text-xs font-bold ${conversionStatus === 'uploading' ? 'text-zinc-500' : 'text-white'}`}>Layout &amp; Text Extraction</h5>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Extracting passages, diagrams, and math formulas with PaddleOCR.</p>
                   </div>
                 </div>
 
                 <div className="relative">
                   <div className={`absolute -left-8 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${
-                    (conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'bg-white/5 border-white/10 text-mutedGray' :
-                    conversionStatus === 'generating' ? 'bg-cyanAccent/20 border-cyanAccent text-cyanAccent animate-pulse' :
-                    'bg-green-500/20 border-green-500 text-green-400'
+                    (conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'bg-white/5 border-white/10 text-zinc-500' :
+                    conversionStatus === 'generating' ? 'bg-lime-300/20 border-lime-300 text-lime-300 animate-pulse' :
+                    'bg-lime-300/20 border-lime-300 text-lime-300'
                   }`}>
                     {(conversionStatus === 'uploading' || conversionStatus === 'processing') ? '3' :
-                     conversionStatus === 'generating' ? <RotateCw className="w-3 h-3 animate-spin" /> :
+                     conversionStatus === 'generating' ? <RotateCw className="w-3.5 h-3.5 animate-spin" /> :
                      <CheckCircle2 className="w-3.5 h-3.5" />}
                   </div>
                   <div>
-                    <h5 className={`text-xs font-bold ${(conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'text-mutedGray' : 'text-white'}`}>CBTify.ai Question Synthesis</h5>
-                    <p className="text-[10px] text-mutedGray mt-0.5">Synthesizing multiple choice questions, options, and bloom levels.</p>
+                    <h5 className={`text-xs font-bold ${(conversionStatus === 'uploading' || conversionStatus === 'processing') ? 'text-zinc-500' : 'text-white'}`}>Qwen AI Question Synthesis</h5>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">Synthesizing multiple choice questions, options, and explanations in parallel.</p>
                   </div>
                 </div>
 
                 <div className="relative">
                   <div className={`absolute -left-8 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold border transition-colors ${
-                    conversionStatus !== 'ready' ? 'bg-white/5 border-white/10 text-mutedGray' : 'bg-green-500/20 border-green-500 text-green-400'
+                    conversionStatus !== 'ready' ? 'bg-white/5 border-white/10 text-zinc-500' : 'bg-lime-300/20 border-lime-300 text-lime-300'
                   }`}>
                     {conversionStatus !== 'ready' ? '4' : <CheckCircle2 className="w-3.5 h-3.5" />}
                   </div>
                   <div>
-                    <h5 className={`text-xs font-bold ${conversionStatus !== 'ready' ? 'text-mutedGray' : 'text-white'}`}>Exam Stored in MongoDB Atlas</h5>
-                    <p className="text-[10px] text-mutedGray mt-0.5">
+                    <h5 className={`text-xs font-bold ${conversionStatus !== 'ready' ? 'text-zinc-500' : 'text-white'}`}>Assessment Ready</h5>
+                    <p className="text-[11px] text-zinc-400 mt-0.5">
                       {currentUser?.role === 'organization'
-                        ? 'Assessment link is active. Share it with your students.'
-                        : 'Your exam is ready. Start it immediately!'}
+                        ? 'Assessment link is active and stored in MongoDB Atlas.'
+                        : 'Your exam is generated. You can begin immediately!'}
                     </p>
                   </div>
                 </div>
               </div>
 
               {conversionStatus === 'ready' && (
-                <div className="pt-4 border-t border-white/5 space-y-4 animate-fadeIn">
+                <div className="pt-4 border-t border-white/10 space-y-4">
                   {currentUser?.role === 'organization' ? (
                     <>
-                      <div className="flex items-center gap-2 p-3 rounded-xl bg-white/5 border border-accentBlue/20">
-                        <Link2 className="w-4 h-4 text-cyanAccent flex-shrink-0" />
-                        <span className="text-[10px] text-slate-300 font-mono truncate flex-1">
+                      <div className="flex items-center gap-2 p-3.5 rounded-xl bg-[#1c1c1c] border border-white/10">
+                        <Link2 className="w-4 h-4 text-lime-300 flex-shrink-0" />
+                        <span className="text-xs text-zinc-300 font-mono truncate flex-1">
                           {window.location.origin}/test/{generatedTestId}
                         </span>
                         <button
                           onClick={copyTestLink}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[10px] font-semibold transition-all flex-shrink-0 ${
+                          className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all flex-shrink-0 ${
                             linkCopied
-                              ? 'bg-green-500/20 border border-green-500/30 text-green-400'
-                              : 'bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent hover:bg-cyanAccent/20'
+                              ? 'bg-lime-300 text-zinc-950 font-bold'
+                              : 'bg-white/5 border border-white/10 text-lime-300 hover:bg-white/10'
                           }`}
                         >
                           {linkCopied ? <><CheckCheck className="w-3.5 h-3.5" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy</>}
                         </button>
                       </div>
 
-                      <p className="text-[10px] text-mutedGray text-center">
-                        📌 Share this link with students — they'll need to log in to access the test.
-                      </p>
-
                       <div className="flex flex-col sm:flex-row items-center gap-3">
                         <button
                           onClick={copyTestLink}
-                          className="w-full sm:flex-1 py-3 rounded-xl bg-gradient-to-r from-cyanAccent to-accentBlue text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-2 shadow-glowBlue"
+                          className="w-full sm:flex-1 py-3.5 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 transition-all flex items-center justify-center space-x-2 shadow-md"
                         >
                           {linkCopied ? <CheckCheck className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                           <span>{linkCopied ? 'Link Copied!' : 'Copy Shareable Link'}</span>
@@ -289,15 +331,15 @@ const UploadPage = () => {
 
                         <button
                           onClick={() => navigate(`/test/${generatedTestId}`)}
-                          className="w-full sm:flex-1 py-3 rounded-xl bg-white/5 border border-white/15 hover:bg-white/10 text-white text-xs font-bold transition-all flex items-center justify-center space-x-2"
+                          className="w-full sm:flex-1 py-3.5 rounded-full bg-white/5 border border-white/15 hover:bg-white/10 text-white text-xs font-bold transition-all flex items-center justify-center space-x-2"
                         >
                           <Play className="w-4 h-4 fill-white" />
-                          <span>Preview Test</span>
+                          <span>Preview Exam</span>
                         </button>
 
                         <button
                           onClick={resetForm}
-                          className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-mutedGray hover:text-white transition-all"
+                          className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-zinc-400 hover:text-white transition-all"
                         >
                           Convert Another
                         </button>
@@ -305,20 +347,17 @@ const UploadPage = () => {
                     </>
                   ) : (
                     <>
-                      <p className="text-[10px] text-green-400 text-center font-medium">
-                        ✅ Your exam is ready — start it right now or convert another file.
-                      </p>
                       <div className="flex flex-col sm:flex-row items-center gap-3">
                         <button
                           onClick={() => navigate(`/test/${generatedTestId}`)}
-                          className="w-full sm:flex-1 py-3.5 rounded-xl bg-gradient-to-r from-accentBlue via-purpleGlow to-cyanAccent text-white text-xs font-bold hover:scale-105 active:scale-95 transition-all flex items-center justify-center space-x-2.5 shadow-glowBlue"
+                          className="w-full sm:flex-1 py-3.5 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 transition-all flex items-center justify-center space-x-2 shadow-md"
                         >
-                          <Play className="w-4 h-4 fill-white" />
-                          <span>Start Test Now</span>
+                          <Play className="w-4 h-4 fill-zinc-950" />
+                          <span>Start Exam Now</span>
                         </button>
                         <button
                           onClick={resetForm}
-                          className="w-full sm:w-auto px-5 py-3 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-mutedGray hover:text-white transition-all"
+                          className="w-full sm:w-auto px-6 py-3.5 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-zinc-400 hover:text-white transition-all"
                         >
                           Convert Another
                         </button>
@@ -331,31 +370,32 @@ const UploadPage = () => {
           )}
         </div>
 
-        <div className="space-y-6">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Cpu className="w-5 h-5 text-purpleGlow" />
-            <span>Evaluation Presets</span>
-          </h2>
-          <p className="text-xs text-mutedGray">
-            Don't have a PDF handy? Click one of our preseeded notes files below to run the AI test generator instantly:
-          </p>
+        {/* Sidebar Presets */}
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">Quick Sample Presets</h2>
+            <p className="text-xs text-zinc-400 mt-1">
+              Select a pre-loaded sample document to test the AI question generation immediately:
+            </p>
+          </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {[
+              { filename: 'sst_indian_history_national_movement.pdf', size: '1.2 MB', label: 'Social Studies & Indian History' },
+              { filename: 'world_geography_climate_zones.pdf', size: '1.1 MB', label: 'Geography & Climate Zones' },
               { filename: 'physics_mechanics_lecture_notes.pdf', size: '1.2 MB', label: 'Physics mechanics' },
               { filename: 'ai_governance_framework_draft.pdf', size: '2.5 MB', label: 'AI ethics & governance' },
-              { filename: 'web_design_general_aptitude.pdf', size: '0.8 MB', label: 'General developer aptitude' },
             ].map((mock) => (
               <button
                 key={mock.filename}
                 disabled={!!selectedFile}
                 onClick={() => selectMockFile(mock.filename)}
-                className="w-full p-4 rounded-2xl bg-white/5 border border-white/10 hover:border-accentBlue hover:bg-accentBlue/[0.03] transition-all text-left flex items-start space-x-3 group disabled:opacity-50 disabled:hover:border-white/10 disabled:hover:bg-white/5"
+                className="w-full p-4 rounded-2xl bg-[#141414] border border-white/10 hover:border-lime-300/40 hover:bg-white/5 transition-all text-left flex items-start space-x-3 group disabled:opacity-50"
               >
-                <FileCheck className="w-5 h-5 text-accentBlue flex-shrink-0 mt-0.5 group-hover:text-cyanAccent" />
+                <FileCheck className="w-5 h-5 text-lime-300 flex-shrink-0 mt-0.5" />
                 <div className="overflow-hidden">
                   <h4 className="text-xs font-bold text-white truncate">{mock.filename}</h4>
-                  <span className="text-[10px] text-mutedGray block mt-0.5">Topic: {mock.label} ({mock.size})</span>
+                  <span className="text-[11px] text-zinc-400 block mt-0.5">Topic: {mock.label} ({mock.size})</span>
                 </div>
               </button>
             ))}

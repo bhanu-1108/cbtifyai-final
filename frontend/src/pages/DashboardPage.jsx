@@ -14,7 +14,6 @@ import {
   BarChart2,
   Copy,
   CheckCheck,
-  Link2,
   Sparkles,
   ShieldCheck
 } from 'lucide-react';
@@ -43,10 +42,10 @@ const DashboardPage = () => {
   const totalTimeMinutes = Math.round(totalTimeSpentSeconds / 60);
 
   const studentStats = [
-    { name: 'TOTAL TESTS TAKEN', value: totalCompleted, sub: 'Exams completed', icon: BookOpen, color: 'blue' },
-    { name: 'AVERAGE ACCURACY', value: `${avgAccuracy}%`, sub: 'Overall test score', icon: CheckCircle, color: 'green' },
-    { name: 'TIME SPENT TESTING', value: `${totalTimeMinutes}m`, sub: 'Total active minutes', icon: Clock, color: 'purple' },
-    { name: 'IMPROVEMENT RATE', value: '+14%', sub: 'Since first attempt', icon: TrendingUp, color: 'cyan' },
+    { name: 'TOTAL TESTS TAKEN', value: totalCompleted, sub: 'Completed exams', icon: BookOpen },
+    { name: 'AVERAGE ACCURACY', value: `${avgAccuracy}%`, sub: 'Overall exam score', icon: CheckCircle },
+    { name: 'TIME SPENT TESTING', value: `${totalTimeMinutes}m`, sub: 'Active practice minutes', icon: Clock },
+    { name: 'IMPROVEMENT RATE', value: '+14%', sub: 'Progress trajectory', icon: TrendingUp },
   ];
 
   // Institution calculations
@@ -60,10 +59,10 @@ const DashboardPage = () => {
   });
 
   const institutionStats = [
-    { name: 'CREATED ASSESSMENTS', value: orgCreatedTests.length, sub: 'Active CBT exams', icon: Sparkles, color: 'purple' },
-    { name: 'ENROLLED CANDIDATES', value: students.length || 3, sub: 'Registered students', icon: Users, color: 'blue' },
-    { name: 'SCHEDULED SESSIONS', value: schedules.length, sub: 'Upcoming exam dates', icon: Calendar, color: 'cyan' },
-    { name: 'SYSTEM INTEGRITY', value: '100%', sub: 'Anti-cheating active', icon: ShieldCheck, color: 'green' },
+    { name: 'CREATED ASSESSMENTS', value: orgCreatedTests.length, sub: 'Active CBT exams', icon: Sparkles },
+    { name: 'ENROLLED CANDIDATES', value: students.length || 3, sub: 'Registered learners', icon: Users },
+    { name: 'SCHEDULED SESSIONS', value: schedules.length, sub: 'Upcoming exam dates', icon: Calendar },
+    { name: 'SYSTEM INTEGRITY', value: '100%', sub: 'Anti-cheat operational', icon: ShieldCheck },
   ];
 
   const availableTests = tests.filter(test => {
@@ -77,51 +76,47 @@ const DashboardPage = () => {
   });
 
   return (
-    <div className="space-y-8 animate-fadeIn">
+    <div className="space-y-8 max-w-[1500px] mx-auto pb-12">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/5">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-white/10">
         <div>
-          <h1 className="text-2xl md:text-3xl font-extrabold text-white">
-            {isOrg ? 'Institution Dashboard' : 'Student Dashboard'}
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-[#f7f7f4]">
+            {isOrg ? 'Institution Console' : 'Student Dashboard'}
           </h1>
-          <p className="text-xs text-mutedGray mt-1">
+          <p className="text-sm text-zinc-400 mt-1">
             {isOrg ? (
               <>
-                Welcome back, <span className="text-purpleGlow font-medium">{currentUser?.username}</span>. Generate exams, manage rosters, and distribute CBT links.
+                Welcome back, <span className="text-white font-semibold">{currentUser?.username}</span>. Manage assessments, monitor candidate rosters, and publish tests.
               </>
             ) : (
               <>
-                Welcome back, <span className="text-accentBlue font-medium">{currentUser?.username}</span>. Track your metrics and convert new files.
+                Welcome back, <span className="text-white font-semibold">{currentUser?.username}</span>. Review your practice analytics and start new exams.
               </>
             )}
           </p>
         </div>
         <Link
           to="/upload"
-          className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-accentBlue to-purpleGlow text-xs font-semibold text-white shadow-glowBlue hover:scale-105 transition-all self-start md:self-auto"
+          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-lime-300 text-xs font-bold text-zinc-950 hover:bg-lime-200 transition-all self-start md:self-auto shadow-md"
         >
-          <Plus className="w-4.5 h-4.5" />
-          <span>{isOrg ? 'Generate New CBT Exam' : 'New CBT Exam'}</span>
+          <Plus className="w-4 h-4" />
+          <span>{isOrg ? 'Generate New Assessment' : 'New CBT Exam'}</span>
         </Link>
       </div>
 
       {/* Top Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {(isOrg ? institutionStats : studentStats).map((stat) => {
           const Icon = stat.icon;
           return (
-            <GlassCard key={stat.name} glowColor={stat.color} className="p-5 flex items-center justify-between">
-              <div className="space-y-2">
-                <span className="text-[10px] text-mutedGray uppercase tracking-wider block font-semibold">{stat.name}</span>
-                <h3 className="text-3xl font-extrabold text-white tracking-tight">{stat.value}</h3>
-                <span className="text-[10px] text-mutedGray block">{stat.sub}</span>
+            <GlassCard key={stat.name} className="p-5 flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="text-[11px] text-zinc-400 uppercase tracking-wider block font-semibold">{stat.name}</span>
+                <h3 className="text-2xl md:text-3xl font-bold text-white tracking-tight">{stat.value}</h3>
+                <span className="text-xs text-zinc-500 block">{stat.sub}</span>
               </div>
-              <div className={`w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center ${
-                stat.color === 'blue' ? 'text-accentBlue' :
-                stat.color === 'green' ? 'text-green-400' :
-                stat.color === 'purple' ? 'text-purpleGlow' : 'text-cyanAccent'
-              }`}>
-                <Icon className="w-6 h-6" />
+              <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-lime-300">
+                <Icon className="w-5 h-5" />
               </div>
             </GlassCard>
           );
@@ -132,86 +127,88 @@ const DashboardPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Left 2 Columns */}
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-accentBlue" />
-              <span>{isOrg ? 'My Created CBT Assessments' : 'Available Practice Exams'}</span>
+        <div className="lg:col-span-2 space-y-4">
+          <div className="flex items-center justify-between pb-2">
+            <h2 className="text-base font-bold text-white flex items-center gap-2">
+              <BookOpen className="w-4 h-4 text-lime-300" />
+              <span>{isOrg ? 'Created CBT Assessments' : 'Available Exams'}</span>
             </h2>
-            <span className="text-xs text-mutedGray font-mono">
-              {(isOrg ? orgCreatedTests : availableTests).length} tests loaded
+            <span className="text-xs text-zinc-500 font-mono">
+              {(isOrg ? orgCreatedTests : availableTests).length} tests
             </span>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-1 gap-3">
             {(isOrg ? orgCreatedTests : availableTests).length === 0 ? (
-              <GlassCard glowColor="purple" className="p-8 text-center space-y-3">
-                <p className="text-sm font-semibold text-gray-300">
+              <GlassCard className="p-8 text-center space-y-3">
+                <p className="text-sm font-semibold text-zinc-300">
                   {isOrg ? 'No assessments created yet.' : 'No practice exams available right now.'}
                 </p>
-                <p className="text-xs text-mutedGray">
-                  Upload a PDF/Image document to generate a customized AI assessment.
+                <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+                  Upload a PDF or image document to generate a customized AI assessment.
                 </p>
                 <Link
                   to="/upload"
-                  className="inline-flex items-center space-x-2 px-4 py-2 rounded-lg bg-accentBlue/20 text-accentBlue border border-accentBlue/30 text-xs font-semibold hover:bg-accentBlue hover:text-white transition-all mt-2"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 transition-all mt-2"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>{isOrg ? 'Generate New CBT Exam' : 'Upload PDF or Image'}</span>
+                  <span>{isOrg ? 'Generate New Assessment' : 'Upload Document'}</span>
                 </Link>
               </GlassCard>
             ) : (
               (isOrg ? orgCreatedTests : availableTests).map((test) => (
-                <GlassCard key={test.id} glowColor="purple" className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-white/15 transition-all">
+                <GlassCard key={test.id} className="p-5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 hover:border-white/20 transition-all">
                   <div className="space-y-1.5 max-w-xl">
-                    <h3 className="text-base font-bold text-white flex items-center gap-2">
-                      <span>{test.title}</span>
+                    <div className="flex items-center gap-2.5 flex-wrap">
+                      <h3 className="text-sm font-bold text-white">{test.title}</h3>
                       {test.createdBy !== 'system' && (
-                        <span className="text-[9px] bg-purpleGlow/25 text-purpleGlow px-2 py-0.5 rounded border border-purpleGlow/30">AI Extracted</span>
+                        <span className="text-[10px] bg-lime-300/10 text-lime-300 px-2 py-0.5 rounded border border-lime-300/25 font-bold">
+                          AI Generated
+                        </span>
                       )}
-                    </h3>
-                    <p className="text-xs text-mutedGray leading-relaxed">{test.description}</p>
-                    <div className="flex items-center space-x-4 text-[10px] text-mutedGray font-mono">
-                      <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" /> {test.timeLimit} mins</span>
+                    </div>
+                    <p className="text-xs text-zinc-400 leading-relaxed line-clamp-2">{test.description}</p>
+                    <div className="flex items-center space-x-3 text-[11px] text-zinc-400 font-mono pt-0.5">
+                      <span className="flex items-center gap-1"><Clock className="w-3 h-3 text-zinc-500" /> {test.timeLimit} mins</span>
                       <span>•</span>
                       <span>{test.questions?.length || 0} Questions</span>
                       {isOrg && (
                         <>
                           <span>•</span>
-                          <span className="text-cyanAccent truncate max-w-[200px]">Link: /test/{test.id}</span>
+                          <span className="text-zinc-400 truncate max-w-[180px]">Link: /test/{test.id}</span>
                         </>
                       )}
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
+                  <div className="flex items-center gap-2 flex-shrink-0 flex-wrap self-end sm:self-center">
                     {isOrg ? (
                       <>
                         <button
                           onClick={() => copyTestLink(test.id)}
-                          className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold transition-all ${
+                          className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-semibold transition-all ${
                             copiedTestId === test.id
-                              ? 'bg-green-500/20 border border-green-500/30 text-green-400'
-                              : 'bg-cyanAccent/10 border border-cyanAccent/30 text-cyanAccent hover:bg-cyanAccent/20'
+                              ? 'bg-lime-300 text-zinc-950 font-bold'
+                              : 'bg-white/5 border border-white/10 text-zinc-300 hover:border-lime-300/40 hover:text-lime-300'
                           }`}
                         >
                           {copiedTestId === test.id ? <><CheckCheck className="w-3.5 h-3.5" /> Copied!</> : <><Copy className="w-3.5 h-3.5" /> Copy Link</>}
                         </button>
                         <button
                           onClick={() => navigate(`/admin/test/${test.id}`)}
-                          className="px-3.5 py-2 rounded-xl bg-accentBlue/15 border border-accentBlue/30 hover:bg-accentBlue/25 text-accentBlue text-xs font-semibold transition-all flex items-center gap-1.5"
+                          className="px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:border-white/20 text-zinc-200 text-xs font-semibold transition-all flex items-center gap-1.5"
                         >
-                          <BarChart2 className="w-3.5 h-3.5" />
-                          <span>Class Analytics</span>
+                          <BarChart2 className="w-3.5 h-3.5 text-lime-300" />
+                          <span>Analytics</span>
                         </button>
                       </>
                     ) : (
                       <button
                         onClick={() => navigate(`/test/${test.id}`)}
-                        className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-accentBlue hover:border-accentBlue text-xs font-semibold text-white transition-all flex items-center gap-1.5 group"
+                        className="px-5 py-2.5 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 transition-all flex items-center gap-1.5"
                       >
-                        <span>Attempt Test</span>
-                        <ArrowRight className="w-4.5 h-4.5 group-hover:translate-x-1 transition-transform" />
+                        <span>Start Test</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </button>
                     )}
 
@@ -221,10 +218,10 @@ const DashboardPage = () => {
                           deleteTest(test.id || test._id);
                         }
                       }}
-                      title="Remove test"
-                      className="p-2.5 rounded-xl bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 text-xs transition-all"
+                      title="Delete test"
+                      className="p-2 rounded-full bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 text-red-400 text-xs transition-all"
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </GlassCard>
@@ -237,44 +234,44 @@ const DashboardPage = () => {
         <div className="space-y-6">
           {isOrg ? (
             <>
-              {/* Institution Fast Actions */}
-              <GlassCard glowColor="purple" className="p-5 space-y-4 border border-purpleGlow/25">
+              {/* Fast Builder Card */}
+              <GlassCard className="p-5 space-y-3 border-lime-300/20 bg-[#161616]">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-purpleGlow" />
-                  <h3 className="text-sm font-bold text-white uppercase tracking-wider">Fast CBT Builder</h3>
+                  <Sparkles className="w-4 h-4 text-lime-300" />
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider">Fast Assessment Creator</h3>
                 </div>
-                <p className="text-xs text-mutedGray leading-relaxed">
-                  Upload lecture notes, sample papers, or question banks with optional answer keys to deploy an online exam in seconds.
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Upload notes, PDFs, or photos of question papers to instantly synthesize and host a Computer-Based Test.
                 </p>
                 <Link
                   to="/upload"
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-purpleGlow to-accentBlue text-white text-xs font-bold shadow-glowBlue hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2"
+                  className="w-full py-3 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 transition-all flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>Generate New CBT Exam</span>
+                  <span>Upload &amp; Generate Test</span>
                 </Link>
               </GlassCard>
 
               {/* Scheduled Sessions */}
-              <div className="space-y-4">
+              <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-cyanAccent" />
+                  <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-lime-300" />
                     <span>Scheduled Exams</span>
                   </h2>
-                  <Link to="/organization" className="text-xs text-accentBlue hover:underline">
-                    Manage All
+                  <Link to="/organization" className="text-xs text-lime-300 hover:underline">
+                    Manage Roster
                   </Link>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {schedules.map((sched) => (
-                    <GlassCard key={sched.id} glowColor="cyan" className="p-4 space-y-2.5">
+                    <GlassCard key={sched.id} className="p-4 space-y-2">
                       <div className="flex justify-between items-start">
                         <h4 className="text-xs font-bold text-white leading-tight">{sched.title}</h4>
-                        <span className="text-[9px] bg-cyanAccent/20 text-cyanAccent px-1.5 py-0.5 rounded border border-cyanAccent/20 font-mono">Scheduled</span>
+                        <span className="text-[10px] bg-lime-300/15 text-lime-300 px-2 py-0.5 rounded-full font-mono font-bold">Scheduled</span>
                       </div>
-                      <div className="text-[11px] text-mutedGray space-y-0.5 font-mono">
+                      <div className="text-[11px] text-zinc-400 space-y-0.5 font-mono">
                         <div>Date: {sched.date}</div>
                         <div>Time: {sched.time} ({sched.duration})</div>
                         <div>Registered: {sched.studentsCount} candidates</div>
@@ -286,36 +283,32 @@ const DashboardPage = () => {
             </>
           ) : (
             <>
-              <h2 className="text-lg font-bold text-white flex items-center gap-2">
-                <Calendar className="w-5 h-5 text-cyanAccent" />
-                <span>Scheduled Exam Alerts</span>
+              <h2 className="text-sm font-bold text-white flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-lime-300" />
+                <span>Scheduled Exam Notices</span>
               </h2>
 
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {schedules.map((sched) => (
-                  <GlassCard key={sched.id} glowColor="cyan" className="p-4 space-y-3">
+                  <GlassCard key={sched.id} className="p-4 space-y-2">
                     <div className="flex justify-between items-start">
                       <h4 className="text-xs font-bold text-white leading-tight">{sched.title}</h4>
-                      <span className="text-[9px] bg-cyanAccent/20 text-cyanAccent px-1.5 py-0.5 rounded border border-cyanAccent/20 font-mono">Exam Lock</span>
+                      <span className="text-[10px] bg-lime-300/15 text-lime-300 px-2 py-0.5 rounded-full font-mono font-bold">Active</span>
                     </div>
-                    <div className="text-[11px] text-mutedGray space-y-1 font-mono">
+                    <div className="text-[11px] text-zinc-400 space-y-0.5 font-mono">
                       <div>Date: {sched.date}</div>
                       <div>Time: {sched.time} ({sched.duration})</div>
-                    </div>
-                    <div className="pt-2 border-t border-white/5 flex items-center justify-between text-[10px] text-mutedGray font-medium">
-                      <span>Registered Candidates: {sched.studentsCount}</span>
-                      <span className="text-accentBlue hover:underline cursor-pointer">Rules info</span>
                     </div>
                   </GlassCard>
                 ))}
 
-                <GlassCard glowColor="purple" className="p-4 bg-gradient-to-tr from-purpleGlow/5 to-transparent border-purpleGlow/25">
-                  <h4 className="text-xs font-bold text-white mb-2 flex items-center gap-1.5">
-                    <TrendingUp className="w-4 h-4 text-purpleGlow" />
-                    <span>AI Preparation Tip</span>
+                <GlassCard className="p-4 space-y-2 bg-[#161616]">
+                  <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                    <TrendingUp className="w-4 h-4 text-lime-300" />
+                    <span>Study Recommendation</span>
                   </h4>
-                  <p className="text-[11px] text-slate-300 leading-relaxed">
-                    Based on your last attempt on <strong>AI Ethics Quiz</strong>, we recommend spending 5 minutes reviewing <strong>Inner Alignment Policies</strong> before re-testing.
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    Based on your previous attempts, reviewing topic definitions before re-testing will improve your speed coefficient.
                   </p>
                 </GlassCard>
               </div>

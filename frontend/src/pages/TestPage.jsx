@@ -126,10 +126,10 @@ const TestPage = () => {
 
   if (loadingTest || !test || !test.questions || test.questions.length === 0) {
     return (
-      <div className="min-h-screen bg-darkBg text-white flex items-center justify-center">
+      <div className="min-h-screen bg-[#101010] text-white flex items-center justify-center">
         <div className="text-center space-y-3">
-          <div className="w-10 h-10 rounded-full border-2 border-accentBlue border-t-transparent animate-spin mx-auto" />
-          <p className="text-xs text-mutedGray">Loading assessment questions...</p>
+          <div className="w-10 h-10 rounded-full border-2 border-lime-300 border-t-transparent animate-spin mx-auto" />
+          <p className="text-xs text-zinc-400 font-medium">Loading assessment questions...</p>
         </div>
       </div>
     );
@@ -139,43 +139,46 @@ const TestPage = () => {
   const currentQuestion = test.questions[currentIdx] || test.questions[0];
 
   return (
-    <div className="min-h-screen bg-darkBg text-white flex flex-col">
-      <div className="h-16 border-b border-white/10 bg-darkSec/50 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-30">
+    <div className="min-h-screen bg-[#101010] text-[#f7f7f4] flex flex-col selection:bg-lime-300 selection:text-black">
+      {/* Top Test Header Bar */}
+      <div className="h-20 border-b border-white/10 bg-[#121212] px-6 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center space-x-3">
-          <span className="text-xs bg-red-500/20 text-red-400 px-2 py-0.5 rounded border border-red-500/30 flex items-center gap-1">
-            <ShieldAlert className="w-3.5 h-3.5" /> SECURE BROWSER ACTIVE
+          <span className="text-xs bg-red-500/15 text-red-400 px-3 py-1 rounded-full border border-red-500/25 flex items-center gap-1.5 font-semibold font-mono">
+            <ShieldAlert className="w-3.5 h-3.5" /> SECURE EXAM ACTIVE
           </span>
-          <span className="text-sm font-semibold text-white truncate max-w-[200px] sm:max-w-md">{test.title}</span>
+          <span className="text-sm font-bold text-white truncate max-w-[200px] sm:max-w-md">{test.title}</span>
         </div>
         
-        <div className="flex items-center space-x-2.5 bg-white/5 border border-white/10 px-4 py-1.5 rounded-lg text-sm font-mono font-bold text-accentBlue">
-          <Clock className="w-4 h-4 text-cyanAccent animate-pulse" />
+        <div className="flex items-center space-x-2 bg-[#1c1c1c] border border-white/10 px-4 py-2 rounded-full text-sm font-mono font-bold text-lime-300">
+          <Clock className="w-4 h-4 text-lime-300" />
           <span>{formatTime(timeLeft)}</span>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col md:flex-row max-w-7xl mx-auto w-full p-4 md:p-8 gap-8">
+      <div className="flex-1 flex flex-col md:flex-row max-w-[1600px] mx-auto w-full p-4 sm:p-6 md:p-8 gap-8">
         <div className="flex-1 space-y-6">
-          <GlassCard glowColor="blue" className="p-6 md:p-8 space-y-6 relative min-h-[300px]">
-            <div className="flex justify-between items-center text-xs pb-3 border-b border-white/10">
-              <span className="font-bold text-accentBlue">QUESTION {currentIdx + 1} OF {test.questions.length}</span>
+          <GlassCard className="p-6 md:p-8 space-y-6 relative min-h-[320px]">
+            <div className="flex justify-between items-center text-xs pb-4 border-b border-white/10">
+              <span className="font-bold text-lime-300 uppercase tracking-widest font-mono">
+                QUESTION {currentIdx + 1} OF {test.questions.length}
+              </span>
               <button
                 onClick={toggleReview}
-                className={`px-3 py-1 rounded border transition-colors ${
+                className={`px-3.5 py-1.5 rounded-full border text-xs font-semibold transition-all ${
                   markedForReview[currentIdx]
-                    ? 'bg-purpleGlow/20 border-purpleGlow text-purpleGlow'
-                    : 'bg-white/5 border-white/10 text-mutedGray hover:text-white'
+                    ? 'bg-amber-400/20 border-amber-400/40 text-amber-300'
+                    : 'bg-white/5 border-white/10 text-zinc-400 hover:text-white'
                 }`}
               >
                 {markedForReview[currentIdx] ? '★ Marked for Review' : '☆ Mark for Review'}
               </button>
             </div>
 
-            <h2 className="text-base sm:text-lg font-semibold text-white leading-relaxed">
+            <h2 className="text-base sm:text-lg font-medium text-white leading-relaxed tracking-tight">
               {currentQuestion.questionText}
             </h2>
 
-            <div className="space-y-3">
+            <div className="space-y-3 pt-2">
               {currentQuestion.options.map((opt, optIdx) => {
                 const isSelected = answers[currentIdx] === optIdx;
                 return (
@@ -184,18 +187,18 @@ const TestPage = () => {
                     onClick={() => selectOption(optIdx)}
                     className={`w-full p-4 rounded-xl border text-left text-xs font-medium transition-all flex items-center ${
                       isSelected 
-                        ? 'bg-accentBlue/10 border-accentBlue text-accentBlue shadow-glowBlue' 
-                        : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                        ? 'bg-lime-300/10 border-lime-300 text-lime-300 font-semibold' 
+                        : 'bg-[#181818] border-white/10 text-zinc-300 hover:bg-[#1f1f1f]'
                     }`}
                   >
-                    <span className={`w-6 h-6 rounded-full border text-center leading-6 mr-3 font-semibold transition-all ${
+                    <span className={`w-7 h-7 rounded-full border text-center leading-7 mr-3.5 text-xs font-bold transition-all ${
                       isSelected 
-                        ? 'bg-accentBlue text-white border-accentBlue' 
-                        : 'bg-white/5 border-white/10 text-slate-400'
+                        ? 'bg-lime-300 text-zinc-950 border-lime-300 shadow-sm' 
+                        : 'bg-white/5 border-white/10 text-zinc-400'
                     }`}>
                       {String.fromCharCode(65 + optIdx)}
                     </span>
-                    <span className="flex-1">{opt}</span>
+                    <span className="flex-1 leading-normal text-sm">{opt}</span>
                   </button>
                 );
               })}
@@ -206,16 +209,16 @@ const TestPage = () => {
             <button
               onClick={handlePrev}
               disabled={currentIdx === 0}
-              className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-50 text-xs font-semibold text-white transition-all flex items-center gap-1.5"
+              className="px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-40 text-xs font-semibold text-white transition-all flex items-center gap-2"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>Previous Question</span>
+              <span>Previous</span>
             </button>
             
             {currentIdx === test.questions.length - 1 ? (
               <button
                 onClick={() => setShowSubmitModal(true)}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-xs font-bold text-white shadow-lg hover:scale-105 active:scale-95 transition-all flex items-center gap-1.5"
+                className="px-8 py-3 rounded-full bg-lime-300 text-xs font-bold text-zinc-950 hover:bg-lime-200 active:scale-95 transition-all flex items-center gap-2 shadow-md"
               >
                 <span>Submit Exam</span>
                 <CheckCircle className="w-4 h-4" />
@@ -223,7 +226,7 @@ const TestPage = () => {
             ) : (
               <button
                 onClick={handleNext}
-                className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-white transition-all flex items-center gap-1.5"
+                className="px-6 py-3 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 text-xs font-semibold text-white transition-all flex items-center gap-2"
               >
                 <span>Next Question</span>
                 <ChevronRight className="w-4 h-4" />
@@ -232,23 +235,24 @@ const TestPage = () => {
           </div>
         </div>
 
-        <div className="w-full md:w-64 space-y-6">
-          <GlassCard glowColor="purple" className="p-5 space-y-5">
-            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Question Navigation</h3>
+        {/* Question Palette Sidebar */}
+        <div className="w-full md:w-72 space-y-6">
+          <GlassCard className="p-5 space-y-5">
+            <h3 className="text-xs font-bold text-white uppercase tracking-wider">Question Navigator</h3>
             
-            <div className="grid grid-cols-5 gap-2.5">
+            <div className="grid grid-cols-5 gap-2">
               {test.questions.map((_, idx) => {
                 const isCurrent = idx === currentIdx;
                 const isAnswered = answers[idx] !== -1;
                 const isMarked = markedForReview[idx];
 
-                let bgClass = 'bg-white/5 border-white/10 text-slate-400';
+                let bgClass = 'bg-[#1a1a1a] border-white/10 text-zinc-400';
                 if (isCurrent) {
-                  bgClass = 'bg-accentBlue border-accentBlue text-white shadow-glowBlue';
+                  bgClass = 'bg-lime-300 border-lime-300 text-zinc-950 font-bold';
                 } else if (isMarked) {
-                  bgClass = 'bg-purpleGlow/30 border-purpleGlow text-purpleGlow';
+                  bgClass = 'bg-amber-400/25 border-amber-400 text-amber-300 font-bold';
                 } else if (isAnswered) {
-                  bgClass = 'bg-accentBlue/20 border-accentBlue/30 text-accentBlue';
+                  bgClass = 'bg-lime-300/15 border-lime-300/35 text-lime-300 font-bold';
                 }
 
                 return (
@@ -263,17 +267,17 @@ const TestPage = () => {
               })}
             </div>
 
-            <div className="space-y-2 text-[10px] text-mutedGray pt-4 border-t border-white/5">
+            <div className="space-y-2 text-xs text-zinc-400 pt-4 border-t border-white/10 font-medium">
               <div className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 rounded bg-accentBlue/25 border border-accentBlue/30 block"></span>
+                <span className="w-3.5 h-3.5 rounded bg-lime-300/20 border border-lime-300/40 block" />
                 <span>Answered</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 rounded bg-purpleGlow/30 border border-purpleGlow block"></span>
+                <span className="w-3.5 h-3.5 rounded bg-amber-400/30 border border-amber-400 block" />
                 <span>Marked for review</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="w-3.5 h-3.5 rounded bg-white/5 border border-white/10 block"></span>
+                <span className="w-3.5 h-3.5 rounded bg-[#1a1a1a] border border-white/10 block" />
                 <span>Unattempted</span>
               </div>
             </div>
@@ -281,7 +285,7 @@ const TestPage = () => {
 
           <button
             onClick={() => setShowSubmitModal(true)}
-            className="w-full py-3.5 rounded-24px bg-gradient-to-r from-accentBlue to-purpleGlow text-white text-xs font-semibold hover:scale-105 active:scale-95 transition-all shadow-glowBlue"
+            className="w-full py-3.5 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 active:scale-95 transition-all shadow-md"
           >
             Submit Entire Attempt
           </button>
@@ -289,35 +293,35 @@ const TestPage = () => {
       </div>
 
       {showSubmitModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
-          <div className="max-w-md w-full bg-darkSec border border-white/10 rounded-24px p-6 space-y-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fadeIn">
+          <div className="max-w-md w-full bg-[#151515] border border-white/10 rounded-2xl p-6 space-y-6 shadow-2xl">
             <div className="text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-accentBlue/10 border border-accentBlue/20 flex items-center justify-center mx-auto text-accentBlue">
+              <div className="w-12 h-12 rounded-full bg-lime-300/10 border border-lime-300/30 flex items-center justify-center mx-auto text-lime-300">
                 <HelpCircle className="w-6 h-6" />
               </div>
-              <h3 className="text-lg font-bold text-white">Submit practice test?</h3>
-              <p className="text-xs text-mutedGray leading-relaxed">
-                You have answered <strong className="text-white">{answeredCount}</strong> out of <strong className="text-white">{test.questions.length}</strong> questions.
+              <h3 className="text-lg font-bold text-white">Submit practice exam?</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                You have answered <strong className="text-lime-300 font-bold">{answeredCount}</strong> out of <strong className="text-white font-bold">{test.questions.length}</strong> questions.
               </p>
             </div>
 
             {answeredCount < test.questions.length && (
-              <div className="p-3.5 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 text-[11px] leading-relaxed flex items-start">
-                <ShieldAlert className="w-5 h-5 flex-shrink-0 mr-2" />
-                <span>Warning: You have unanswered questions remaining. If you submit, they will be marked incorrect.</span>
+              <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] leading-relaxed flex items-start gap-2">
+                <ShieldAlert className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>Warning: You have unattempted questions. Unanswered questions will be evaluated as incorrect.</span>
               </div>
             )}
 
             <div className="flex gap-3">
               <button
                 onClick={() => setShowSubmitModal(false)}
-                className="flex-1 py-3 rounded-xl bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 transition-colors text-white"
+                className="flex-1 py-3 rounded-full bg-white/5 border border-white/10 text-xs font-semibold hover:bg-white/10 transition-colors text-white"
               >
                 Go back
               </button>
               <button
                 onClick={triggerSubmission}
-                className="flex-1 py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-xs font-bold hover:scale-102 active:scale-98 transition-transform text-white shadow-lg"
+                className="flex-1 py-3 rounded-full bg-lime-300 text-zinc-950 text-xs font-bold hover:bg-lime-200 transition-transform shadow-md"
               >
                 Yes, Submit Test
               </button>

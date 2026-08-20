@@ -62,6 +62,27 @@ const ethicsQuestions = [
   }
 ];
 
+const sstQuestions = [
+  {
+    questionText: 'In which year was the Non-Cooperation Movement launched under the leadership of Mahatma Gandhi?',
+    options: ['1915', '1920', '1930', '1942'],
+    correctAnswer: 1,
+    explanation: 'The Non-Cooperation Movement was launched by Mahatma Gandhi in 1920 following the Jallianwala Bagh massacre and the Rowlatt Act.'
+  },
+  {
+    questionText: 'Which fundamental right under the Indian Constitution is often termed as the "Heart and Soul of the Constitution" by Dr. B.R. Ambedkar?',
+    options: ['Right to Equality', 'Right to Freedom of Speech', 'Right to Constitutional Remedies (Article 32)', 'Right against Exploitation'],
+    correctAnswer: 2,
+    explanation: 'Dr. B.R. Ambedkar described Article 32 (Right to Constitutional Remedies) as the "Heart and Soul of the Constitution" because it guarantees judicial enforcement of fundamental rights.'
+  },
+  {
+    questionText: 'What type of soil is most suitable for cotton cultivation in India, primarily found in the Deccan Plateau?',
+    options: ['Alluvial Soil', 'Black Soil (Regur Soil)', 'Red and Yellow Soil', 'Laterite Soil'],
+    correctAnswer: 1,
+    explanation: 'Black soil (Regur soil), formed by weathering of volcanic basalt rock in the Deccan Plateau, has high moisture retention and is ideal for growing cotton.'
+  }
+];
+
 const generalQuestions = [
   {
     questionText: 'What is the primary execution runtime environment for JavaScript on the server side?',
@@ -210,7 +231,10 @@ export const AppProvider = ({ children }) => {
           const nameLower = filename.toLowerCase();
           let pool = generalQuestions;
           let topicText = 'General Development Basics';
-          if (nameLower.includes('physic') || nameLower.includes('mechanic') || nameLower.includes('science')) {
+          if (nameLower.includes('sst') || nameLower.includes('history') || nameLower.includes('geography') || nameLower.includes('civic') || nameLower.includes('social')) {
+            pool = sstQuestions;
+            topicText = 'Social Studies & Indian History';
+          } else if (nameLower.includes('physic') || nameLower.includes('mechanic') || nameLower.includes('science')) {
             pool = physicsQuestions;
             topicText = 'Physics Classical Mechanics';
           } else if (nameLower.includes('ethics') || nameLower.includes('governance') || nameLower.includes('align')) {
@@ -285,12 +309,16 @@ export const AppProvider = ({ children }) => {
 
     const accuracy = Math.round((score / totalQuestions) * 100);
 
+    const userEmailVal = currentUser?.email || localStorage.getItem('cbtify_user_email') || (currentUser?.username ? `${currentUser.username.toLowerCase().replace(/\s+/g, '')}@gmail.com` : 'student@cbtify.ai');
+    const usernameVal = currentUser?.username || currentUser?.name || localStorage.getItem('cbtify_username') || 'Student Candidate';
+    const userIdVal = currentUser?.id || currentUser?._id || localStorage.getItem('cbtify_user_id') || `stud-${Date.now()}`;
+
     const submissionData = {
       testId,
       testTitle: test.title,
-      userId: currentUser ? currentUser.id : 'student-1',
-      userEmail: currentUser ? currentUser.email : 'student@cbtify.ai',
-      username: currentUser ? currentUser.username : 'John Doe',
+      userId: userIdVal,
+      userEmail: userEmailVal,
+      username: usernameVal,
       score,
       totalQuestions,
       accuracy,

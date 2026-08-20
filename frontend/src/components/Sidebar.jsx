@@ -34,23 +34,23 @@ const Sidebar = () => {
       ];
 
   return (
-    <aside className="w-64 h-[calc(100vh-80px)] sticky top-20 hidden md:flex flex-col border-r border-white/10 bg-darkBg/30 backdrop-blur-md p-4 justify-between">
+    <aside className="w-64 h-[calc(100vh-6rem)] sticky top-24 hidden md:flex flex-col border-r border-white/5 bg-[#101010]/60 backdrop-blur-md p-4 justify-between">
       <div className="space-y-6">
-        {/* User profile brief */}
+        {/* User profile card */}
         <div className="flex items-center space-x-3 p-3 rounded-2xl bg-white/5 border border-white/10">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purpleGlow to-cyanAccent flex items-center justify-center font-bold text-white shadow-glowBlue">
-            {currentUser?.username?.substring(0, 2).toUpperCase()}
+          <div className="w-10 h-10 rounded-xl bg-lime-300 text-zinc-950 flex items-center justify-center font-black text-sm shadow-[0_0_15px_rgba(190,242,100,0.3)]">
+            {currentUser?.username?.substring(0, 2).toUpperCase() || 'U'}
           </div>
           <div className="overflow-hidden">
             <div className="flex items-center gap-1.5">
               <h4 className="text-sm font-semibold text-white truncate">{currentUser?.username}</h4>
               {isOrg && (
-                <span className="text-[9px] bg-purpleGlow/25 text-purpleGlow px-1.5 py-0.2 rounded border border-purpleGlow/30 font-bold">
+                <span className="text-[9px] bg-lime-300/20 text-lime-300 px-1.5 py-0.5 rounded border border-lime-300/30 font-bold">
                   ORG
                 </span>
               )}
             </div>
-            <p className="text-[11px] text-mutedGray truncate">{currentUser?.email}</p>
+            <p className="text-[11px] text-zinc-400 truncate">{currentUser?.email}</p>
           </div>
         </div>
 
@@ -65,12 +65,12 @@ const Sidebar = () => {
                 className={({ isActive }) =>
                   `flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                     isActive 
-                      ? 'bg-gradient-to-r from-accentBlue/20 to-purpleGlow/10 border-l-4 border-accentBlue text-white shadow-glowBlue' 
-                      : 'text-mutedGray hover:bg-white/5 hover:text-white border-l-4 border-transparent'
+                      ? 'bg-lime-300/10 border-l-4 border-lime-300 text-lime-300 font-semibold' 
+                      : 'text-zinc-400 hover:bg-white/5 hover:text-white border-l-4 border-transparent'
                   }`
                 }
               >
-                <Icon className="w-5 h-5 flex-shrink-0" />
+                <Icon className="w-4.5 h-4.5 flex-shrink-0" />
                 <span>{item.name}</span>
               </NavLink>
             );
@@ -82,9 +82,9 @@ const Sidebar = () => {
       <div className="pt-4 border-t border-white/10">
         <button
           onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-sm font-medium text-mutedGray hover:bg-red-500/10 hover:text-red-400 transition-all"
+          className="w-full flex items-center space-x-3 px-4 py-2.5 rounded-full text-xs font-semibold text-zinc-400 hover:bg-red-500/10 hover:text-red-400 hover:border hover:border-red-500/20 transition-all"
         >
-          <LogOut className="w-5 h-5 flex-shrink-0" />
+          <LogOut className="w-4 h-4 flex-shrink-0" />
           <span>Logout</span>
         </button>
       </div>
