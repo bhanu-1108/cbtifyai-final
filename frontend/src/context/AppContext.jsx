@@ -386,7 +386,19 @@ export const AppProvider = ({ children }) => {
   };
 
   const getAnalytics = () => {
-    const userSubs = submissions.filter(s => s.userId === (currentUser ? currentUser.id : 'student-1'));
+    const userSubs = submissions.filter((s) => {
+      if (!currentUser) return false;
+      const uid = currentUser.id || currentUser._id;
+      const uemail = (currentUser.email || '').toLowerCase();
+      const uname = (currentUser.username || currentUser.name || '').toLowerCase();
+
+      return (
+        (s.userId && (s.userId === uid || s.userId === uemail)) ||
+        (s.userEmail && s.userEmail.toLowerCase() === uemail) ||
+        (s.email && s.email.toLowerCase() === uemail) ||
+        (s.username && s.username.toLowerCase() === uname)
+      );
+    });
     if (userSubs.length === 0) {
       return {
         totalTests: 0,

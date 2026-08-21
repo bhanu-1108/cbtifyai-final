@@ -88,7 +88,25 @@ export async function extractText(fileBuffer, mimetype, originalname) {
     }
   }
 
-  // Step 3: Raw PDF text stream fallback for PDFs if OCR service was busy
+  // Step 3: Pure In-Memory OCR Fallback for Images using Tesseract.js
+  if (!isPdf) {
+    try {
+      console.log(`[OCR] Python OCR offline — running local in-memory OCR on "${originalname}" …`);
+      const { createWorker } = await import('tesseract.js');
+      const worker = await createWorker('eng');
+      const ret = await worker.recognize(fileBuffer);
+      await worker.terminate();
+      const extracted = ret?.data?.text || '';
+      if (extracted && extracted.trim().length >= 10) {
+        console.log(`[OCR] In-memory OCR extracted ${extracted.length} characters.`);
+        return extracted;
+      }
+    } catch (tessErr) {
+      console.warn('[OCR] In-memory Tesseract fallback error:', tessErr.message);
+    }
+  }
+
+  // Step 4: Raw PDF text stream fallback for PDFs if OCR service was busy
   if (isPdf) {
     const rawText = extractRawPdfText(fileBuffer);
     if (rawText && rawText.length >= 20) {
@@ -99,8 +117,7 @@ export async function extractText(fileBuffer, mimetype, originalname) {
 
   if (!isPdf) {
     throw new Error(
-      `Image OCR microservice is currently offline at ${OCR_BASE_URL}. ` +
-      'To process scanned image files (PNG/JPG), ensure the Python OCR service is running on port 8000.'
+      `Unable to extract text from image "${originalname}". Please ensure the image is clear and contains readable text.`
     );
   }
 
