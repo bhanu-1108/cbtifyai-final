@@ -1,15 +1,17 @@
 /**
  * ocrService.js — CBTifyAI-Final
  * ─────────────────────────────────────────────────────────────────────────────
- * High-performance text extraction engine.
- * Supports:
- *   1. Ultra-fast local digital PDF extraction (~5ms) for text PDFs
- *   2. Python FastAPI OCR Microservice (PaddleOCR + PyMuPDF) for scanned PDFs and images
+ * High-performance hybrid text extraction engine:
+ *   1. Ultra-fast local digital PDF extraction (~5ms) for text PDFs via pdf-parse
+ *   2. Python FastAPI OCR Microservice (PaddleOCR) if online (fast 2.5s connect check)
+ *   3. Pure In-Memory JavaScript OCR (Tesseract.js) for cloud images with zero external servers
+ *   4. Native PDF binary stream decoder fallback
  */
 
 import { createRequire } from 'node:module';
 import axios from 'axios';
 import FormData from 'form-data';
+import { createWorker } from 'tesseract.js';
 
 const require = createRequire(import.meta.url);
 
@@ -17,16 +19,13 @@ let PDFParse = null;
 try {
   const pdfParsePkg = require('pdf-parse');
   PDFParse = pdfParsePkg.PDFParse || pdfParsePkg.default || pdfParsePkg;
-} catch (_e) {
-  // pdf-parse module resolution fallback
-}
+} catch (_e) {}
 
-// Base URL of the FastAPI OCR microservice (from environment)
 const OCR_BASE_URL = process.env.PYTHON_OCR_URL || 'http://127.0.0.1:8000';
-const OCR_TIMEOUT_MS = 60_000;
+const PYTHON_OCR_TIMEOUT_MS = 4_000; // 4s fast timeout if Python microservice is offline
 
 /**
- * Send a file buffer to the OCR service or fallback to native PDF parsing.
+ * Send a file buffer to the OCR service or fallback to native PDF/Tesseract parsing.
  *
  * @param {Buffer}  fileBuffer   Raw file content.
  * @param {string}  mimetype     MIME type of the file.
@@ -45,25 +44,22 @@ export async function extractText(fileBuffer, mimetype, originalname) {
       const textResult = await parser.getText();
       const extracted = typeof textResult === 'string'
         ? textResult
-        : (textResult?.text || textResult?.pages?.map(p => p.text).join('\n') || '');
+        : (textResult?.text || textResult?.pages?.map((p) => p.text).join('\n') || '');
 
       if (extracted && extracted.trim().length >= 80) {
         console.log(`[PDF] Fast native extraction complete: ${extracted.length} characters.`);
         return extracted;
       }
     } catch (_err) {
-      // Fall through to Python OCR microservice
+      // Fall through to OCR
     }
   }
 
-  // Step 2: Python OCR Microservice (PaddleOCR for images and scanned PDFs)
-  const candidateUrls = [
-    OCR_BASE_URL,
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
-  ];
+  // Step 2: Python OCR Microservice (if running locally or deployed)
+  const candidateUrls = [OCR_BASE_URL, 'http://127.0.0.1:8000'].filter(Boolean);
+  const uniqueUrls = [...new Set(candidateUrls)];
 
-  for (const baseUrl of [...new Set(candidateUrls)]) {
+  for (const baseUrl of uniqueUrls) {
     try {
       const endpoint = isPdf ? '/ocr/pdf' : '/ocr/image';
       const form = new FormData();
@@ -74,31 +70,28 @@ export async function extractText(fileBuffer, mimetype, originalname) {
 
       const response = await axios.post(`${baseUrl}${endpoint}`, form, {
         headers: form.getHeaders(),
-        timeout: OCR_TIMEOUT_MS,
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
+        timeout: PYTHON_OCR_TIMEOUT_MS,
       });
 
       if (response.data?.text && typeof response.data.text === 'string' && response.data.text.trim().length >= 10) {
         console.log(`[OCR] Extracted ${response.data.text.length} chars via Python OCR service at ${baseUrl}.`);
         return response.data.text;
       }
-    } catch (err) {
-      // Continue to next candidate URL
+    } catch (_err) {
+      // Fast fallback to next engine
     }
   }
 
-  // Step 3: Pure In-Memory OCR Fallback for Images using Tesseract.js
+  // Step 3: Pure In-Memory OCR for Images using Tesseract.js (Cloud & Serverless Ready)
   if (!isPdf) {
     try {
-      console.log(`[OCR] Python OCR offline — running local in-memory OCR on "${originalname}" …`);
-      const { createWorker } = await import('tesseract.js');
+      console.log(`[OCR] Running local in-memory OCR on image "${originalname}" …`);
       const worker = await createWorker('eng');
       const ret = await worker.recognize(fileBuffer);
       await worker.terminate();
-      const extracted = ret?.data?.text || '';
-      if (extracted && extracted.trim().length >= 10) {
-        console.log(`[OCR] In-memory OCR extracted ${extracted.length} characters.`);
+      const extracted = (ret?.data?.text || '').trim();
+      if (extracted && extracted.length >= 10) {
+        console.log(`[OCR] In-memory OCR successfully extracted ${extracted.length} characters.`);
         return extracted;
       }
     } catch (tessErr) {
@@ -106,7 +99,7 @@ export async function extractText(fileBuffer, mimetype, originalname) {
     }
   }
 
-  // Step 4: Raw PDF text stream fallback for PDFs if OCR service was busy
+  // Step 4: Raw PDF stream fallback
   if (isPdf) {
     const rawText = extractRawPdfText(fileBuffer);
     if (rawText && rawText.length >= 20) {
@@ -142,7 +135,7 @@ function extractRawPdfText(fileBuffer) {
     if (clean.length > 50) return clean;
 
     const matches = pdfString.match(/[A-Za-z0-9\s.,?!'\":;()\-]{30,}/g) || [];
-    const filtered = matches.filter(m => !/(FontDescriptor|BaseFont|Encoding|FontName|PDF-1\.|endobj|stream)/i.test(m));
+    const filtered = matches.filter((m) => !/(FontDescriptor|BaseFont|Encoding|FontName|PDF-1\.|endobj|stream)/i.test(m));
     return filtered.join(' ').replace(/\s+/g, ' ').trim();
   } catch (_e) {
     return '';
