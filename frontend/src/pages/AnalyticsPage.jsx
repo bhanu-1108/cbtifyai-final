@@ -152,27 +152,34 @@ const AnalyticsPage = () => {
         <div className="space-y-3">
           <h3 className="text-xs font-bold text-zinc-400 uppercase tracking-widest flex items-center gap-2">
             <Clock className="w-4 h-4 text-lime-300" />
-            <span>14-Day Activity Heatmap</span>
+            <span>Study Plan & Readiness</span>
           </h3>
-          <GlassCard className="p-5 flex flex-col justify-center h-48">
-            <div className="grid grid-cols-7 gap-2 max-w-sm mx-auto w-full">
-              {analytics.mistakeHeatmap.map((day) => {
-                let colorClass = 'bg-[#181818] border-white/5 text-zinc-600';
-                if (day.count === 1) colorClass = 'bg-lime-300/20 border-lime-300/40 text-lime-300';
-                else if (day.count >= 2) colorClass = 'bg-lime-300 text-zinc-950 font-black';
-
-                return (
-                  <div
-                    key={day.date}
-                    className={`w-9 h-9 rounded-xl border text-[9px] font-bold flex flex-col items-center justify-center font-mono transition-all ${colorClass}`}
-                  >
-                    <span>{day.label.split(' ')[1]}</span>
-                    {day.count > 0 && <span className="text-[8px] opacity-80 mt-0.5">{day.count}x</span>}
-                  </div>
-                );
-              })}
+          <GlassCard className="p-5 flex flex-col justify-between h-48">
+            <div className="space-y-2">
+              <div className="flex justify-between items-center text-xs">
+                <span className="text-zinc-400 font-medium">Exam Preparedness</span>
+                <span className="text-lime-300 font-bold font-mono">
+                  {userSubmissions.length > 0 ? (analytics.avgAccuracy >= 80 ? '92%' : analytics.avgAccuracy >= 60 ? '75%' : '55%') : '0%'}
+                </span>
+              </div>
+              <div className="w-full bg-white/5 h-2 rounded-full overflow-hidden border border-white/5">
+                <div 
+                  className="bg-lime-300 h-full rounded-full transition-all duration-500" 
+                  style={{ width: `${userSubmissions.length > 0 ? Math.max(12, analytics.avgAccuracy) : 0}%` }}
+                />
+              </div>
             </div>
-            <div className="text-[11px] text-zinc-500 text-center mt-3">Lime indicates exam attempts on that day.</div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10 text-center">
+              <div className="p-2.5 rounded-lg bg-white/5 border border-white/5">
+                <span className="text-[10px] text-zinc-400 block">Weekly Target</span>
+                <span className="text-xs font-bold text-white font-mono">2 Assessments</span>
+              </div>
+              <div className="p-2.5 rounded-lg bg-white/5 border border-white/5">
+                <span className="text-[10px] text-zinc-400 block">Target Accuracy</span>
+                <span className="text-xs font-bold text-lime-300 font-mono">≥ 80% Score</span>
+              </div>
+            </div>
           </GlassCard>
         </div>
 

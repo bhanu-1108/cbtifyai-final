@@ -29,24 +29,6 @@ const UploadPage = () => {
   const [generatedTestId, setGeneratedTestId] = useState(null);
   const [conversionError, setConversionError] = useState('');
   const [linkCopied, setLinkCopied] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const timerIntervalRef = useRef(null);
-
-  // Live timer during processing
-  useEffect(() => {
-    if (['uploading', 'processing', 'generating'].includes(conversionStatus)) {
-      setElapsedSeconds(0);
-      const startTime = Date.now();
-      timerIntervalRef.current = setInterval(() => {
-        setElapsedSeconds(((Date.now() - startTime) / 1000).toFixed(1));
-      }, 100);
-    } else {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    }
-    return () => {
-      if (timerIntervalRef.current) clearInterval(timerIntervalRef.current);
-    };
-  }, [conversionStatus]);
 
   const handleDrag = (e) => {
     e.preventDefault();
@@ -216,15 +198,14 @@ const UploadPage = () => {
                     <span className="text-xs text-zinc-500 font-mono">{selectedFile.size}</span>
                   </div>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   {['uploading', 'processing', 'generating'].includes(conversionStatus) && (
-                    <span className="text-xs text-zinc-400 font-mono flex items-center gap-1">
-                      <Timer className="w-3.5 h-3.5 text-lime-300 animate-spin" />
-                      {elapsedSeconds}s
-                    </span>
+                    <span className="w-2 h-2 rounded-full bg-lime-300 animate-ping" />
                   )}
-                  <div className="text-xs font-bold uppercase text-lime-300 font-mono">
-                    {conversionStatus === 'ready' ? 'Complete' : conversionStatus === 'error' ? 'Failed' : 'Processing'}
+                  <div className={`text-xs font-bold uppercase font-mono ${
+                    conversionStatus === 'ready' ? 'text-lime-300' : conversionStatus === 'error' ? 'text-rose-400' : 'text-lime-300 animate-pulse'
+                  }`}>
+                    {conversionStatus === 'ready' ? 'Complete' : conversionStatus === 'error' ? 'Failed' : 'Processing...'}
                   </div>
                 </div>
               </div>
