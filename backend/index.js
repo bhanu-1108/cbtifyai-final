@@ -163,7 +163,36 @@ app.post("/api/auth/login", async (req, res) => {
       return res.status(400).json({ error: "Please enter both email and password." });
     }
 
-    const user = await db.collection("users").findOne({ email: email.toLowerCase(), password });
+    const cleanEmail = email.toLowerCase().trim();
+
+    // Foolproof demo accounts auto-authentication
+    if (password === "password" && (cleanEmail === "student@cbtify.ai" || cleanEmail === "school@cbtify.ai" || cleanEmail === "institute@cbtify.ai")) {
+      const isOrg = cleanEmail !== "student@cbtify.ai";
+      const demoUser = {
+        _id: isOrg ? "org-1" : "student-1",
+        username: isOrg ? "Institute Demo" : "Student Demo",
+        email: cleanEmail,
+        password: "password",
+        role: isOrg ? "organization" : "student",
+        organizationName: isOrg ? "CBTify Institute" : "",
+      };
+      try {
+        await db.collection("users").updateOne(
+          { email: cleanEmail },
+          { $set: demoUser, $setOnInsert: { createdAt: new Date() } },
+          { upsert: true }
+        );
+      } catch (_e) {}
+      return res.json({
+        id: demoUser._id,
+        username: demoUser.username,
+        email: demoUser.email,
+        role: demoUser.role,
+        organizationName: demoUser.organizationName,
+      });
+    }
+
+    const user = await db.collection("users").findOne({ email: cleanEmail, password });
 
     if (!user) {
       return res.status(401).json({ error: "Invalid email or password." });
