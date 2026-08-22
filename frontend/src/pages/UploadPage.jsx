@@ -213,7 +213,7 @@ const UploadPage = () => {
               {conversionError && (
                 <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300 text-xs leading-relaxed flex items-start gap-2">
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  <span>{conversionError}</span>
+                  <span className="whitespace-pre-line">{conversionError}</span>
                 </div>
               )}
 
